@@ -52,7 +52,14 @@ export function wallet() {
 /// holds. Env first, file second — a hosted cron has no gitignored file to
 /// read. On devnet it falls back to the authority so one key does everything.
 export function potWallet() {
-  if (process.env.POT_SECRET) return fromSecret(process.env.POT_SECRET);
+  if (process.env.POT_SECRET) {
+    // A placeholder left in the hosted variables is the expected state before
+    // launch; say so instead of dying on a JSON parse.
+    if (!process.env.POT_SECRET.trim().startsWith('[')) {
+      throw new Error('POT_SECRET is not set yet: paste the pot keypair (JSON byte array) into the cycle service variables');
+    }
+    return fromSecret(process.env.POT_SECRET);
+  }
   const path = resolve(root, 'pot-wallet.json');
   if (existsSync(path)) return fromSecret(readFileSync(path, 'utf8'));
   if (!IS_MAINNET) return wallet();
