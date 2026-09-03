@@ -48,6 +48,19 @@ vault held 21.717646 of its mock stock with 0 owed.
 Test helpers, all devnet-only: `npm run airdrop`, `npm run mint -- <n>`,
 `npm run vaults`, `npm run sweep -- <asset>`.
 
+## Hosting
+
+- Repo: https://github.com/spalway/7stocks — Railway deploys `main` on push.
+- Railway project `ceos`, service `site` (`railway.json`: `npm run build`, `npm start`).
+  Railway URL https://site-production-fa2d.up.railway.app, custom domain `ceos.fun`
+  (CNAME to `6jdt0fli.up.railway.app`).
+- Site vars: `VITE_CLUSTER`, `HELIUS_RPC`, `PUBLIC_URL=https://ceos.fun`,
+  `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. `VITE_*` are baked at build: change
+  one, redeploy.
+- Cycle cron: second service on the same repo with config file `railway.cycle.json`
+  (created at mainnet time; needs `POT_SECRET`, `HELIUS_RPC`, `CLUSTER=mainnet`,
+  `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`).
+
 ## Mainnet
 
 1. `CLUSTER=mainnet` for every script. Fill `ceos.config.json → pump.mint/creator`,
