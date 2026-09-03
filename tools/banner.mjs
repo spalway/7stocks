@@ -6,9 +6,8 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { Resvg } from '@resvg/resvg-js';
 
-// Needs @resvg/resvg-js (not a project dependency): run from a folder that has it,
-// e.g. npm i @resvg/resvg-js in a scratch dir and node <that>/banner.mjs.
-const ROOT = new URL('..', import.meta.url).pathname.replace(/^/([A-Za-z]:)/, '$1').replace(//$/, '');
+import { fileURLToPath } from 'node:url';
+const ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/[\/]$/, '');
 const OUT = `${ROOT}/docs/social/banner.png`;
 const { COMPANIES } = await import(`file:///${ROOT}/src/ceoData.js`);
 
@@ -44,14 +43,18 @@ const far = fillerBand({ seed: 0xA11CE, count: Math.ceil(W / (unit * 4)) + 4, de
 const mid = fillerBand({ seed: 0xB0B, count: Math.ceil(W / (unit * 5)) + 4, depth: 1, baseY: baseY - unit * 6 });
 const near = fillerBand({ seed: 0xC0DE, count: Math.ceil(W / (unit * 6)) + 4, depth: 2, baseY });
 
-const towerW = unit * 9;
+// Wider than the site's towers, and clustered in the middle 55% of the width.
+const towerW = unit * 15;
 const heights = [126, 108, 96, 84, 116, 120, 88];
 // Spread across the whole width, in roster order, with a little jitter so
 // the spacing does not read as a ruler.
-const jitter = [-6, 4, -3, 5, -5, 3, -4];
+const jitter = [-2, 2, -1, 2, -2, 1, -2];
+const CLUSTER = 0.55;
 const towers = COMPANIES.map((c, i) => {
-  const slot = W / COMPANIES.length;
-  const x = Math.round((slot * (i + 0.5) - towerW / 2 + jitter[i] * unit) / unit) * unit;
+  const span = W * CLUSTER;
+  const left = (W - span) / 2;
+  const slot = span / COMPANIES.length;
+  const x = Math.round((left + slot * (i + 0.5) - towerW / 2 + jitter[i] * unit) / unit) * unit;
   const h = unit * heights[i];
   return { ...c, x, y: baseY - h, w: towerW, h };
 });
