@@ -40,3 +40,4 @@ public/CEOPIXELS/*_files/
 
 # pump.fun deployer key, only needed once for the fee-share setup.
 creator-wallet.json
+pot-wallet.old.json

@@ -59,6 +59,8 @@ try {
 const FROM = {
   treasury: 'treasury-wallet.json',
   pot: 'pot-wallet.json',
+  // A retired pot key kept only until its balance has been moved out.
+  oldpot: 'pot-wallet.old.json',
   // The program's upgrade authority. Draining it does not give the authority
   // away — that is the keypair, not the balance — but the program cannot be
   // patched while this account is empty, and an upgrade needs roughly 2.7 SOL
@@ -74,7 +76,7 @@ if (!keyFile) {
   process.exit(1);
 }
 
-const ENV_KEY = { treasury: 'TREASURY_SECRET', pot: 'POT_SECRET', authority: 'AUTHORITY_SECRET' };
+const ENV_KEY = { treasury: 'TREASURY_SECRET', pot: 'POT_SECRET', oldpot: 'OLD_POT_SECRET', authority: 'AUTHORITY_SECRET' };
 const envKey = process.env[ENV_KEY[which]];
 const treasury = Keypair.fromSecretKey(
   Uint8Array.from(envKey ? JSON.parse(envKey) : JSON.parse(fs.readFileSync(keyFile, 'utf8'))),
