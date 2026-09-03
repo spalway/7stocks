@@ -22,7 +22,7 @@
     "mode": "share",
     "rpc": "https://api.mainnet-beta.solana.com",
     "mint": null,
-    "creator": null,
+    "creator": "3TGNMJn1FhZF8NSvour5A8ysHBReB68AUV8evB53WcwR",
     "minSweepSol": 0.05,
     "holderBps": 9000,
     "protocolWallet": "F7ivZZGjZKC8vhzL2KgxtScPqwrKkXTYHFUQ2xq6iL1i",
