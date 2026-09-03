@@ -33,3 +33,7 @@ public/dev-wallet.json
 
 # program upgrade key — never commit
 anchor/ceos-keypair.json
+
+# Browser "save page" dumps that landed next to the reference art.
+public/CEOPIXELS/*.html
+public/CEOPIXELS/*_files/
