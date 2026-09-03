@@ -138,21 +138,6 @@ export default function Landing({ now }) {
         <PotAllocation seconds={remaining} />
       </Shell>
 
-      {/* ---------------------------------------------------------- gallery */}
-      <Shell title="The collection" aside={`${GALLERY.length} of ${TOTAL_SUPPLY}`}>
-        <div className="gallery">
-          {GALLERY.map((g) => (
-            <span
-              className="gallery-item"
-              key={g.id}
-              style={{ '--brand': COMPANIES[g.companyId].hue }}
-              title={`${COMPANIES[g.companyId].ceo} #${g.serial}`}
-            >
-              <CeoArt companyId={g.companyId} address={g.address} size={96} />
-            </span>
-          ))}
-        </div>
-      </Shell>
     </>
   );
 }

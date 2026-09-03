@@ -11,7 +11,8 @@
 // is a more convincing way to make it than any sentence would be.
 
 import Countdown from './Countdown.jsx';
-import { CeoArt, Logo } from './CeoArt.jsx';
+import { Logo } from './CeoArt.jsx';
+import MintList from './MintList.jsx';
 import { COMPANIES } from './ceoData.js';
 import { useLive } from './live.js';
 
@@ -28,11 +29,11 @@ function polar(cx, cy, r, frac) {
 /// goes — a solid pie leaves nowhere to put it and forces the number into a
 /// caption nobody reads.
 export function segment(cx, cy, rOuter, rInner, from, to) {
-  // A full-circle segment cannot be one arc: start and end coincide, so it is
-  // drawn as two halves.
+  // A full-circle segment cannot be one arc: start and end coincide and the
+  // arc collapses. Draw it as two half rings instead, which keeps the hole.
   if (to - from >= 0.9999) {
-    return `M ${cx} ${cy - rOuter} A ${rOuter} ${rOuter} 0 1 1 ${cx - 0.01} ${cy - rOuter} Z`
-      + `M ${cx} ${cy - rInner} A ${rInner} ${rInner} 0 1 0 ${cx - 0.01} ${cy - rInner} Z`;
+    const mid = from + (to - from) / 2;
+    return segment(cx, cy, rOuter, rInner, from, mid) + ' ' + segment(cx, cy, rOuter, rInner, mid, to);
   }
   const [x1, y1] = polar(cx, cy, rOuter, from);
   const [x2, y2] = polar(cx, cy, rOuter, to);
@@ -133,24 +134,9 @@ export default function PotAllocation({ seconds }) {
           <span>{RECENT.length} shown</span>
         </div>
 
-        <ul className="recent">
-          {RECENT.map((r) => {
-            const co = COMPANIES[r.companyId];
-            return (
-              <li key={r.id} style={{ '--brand': co.hue }}>
-                <span className="recent-art">
-                  <CeoArt companyId={r.companyId} address={r.address} size={44} />
-                </span>
-                <span className="recent-meta">
-                  <b>{co.ceo}</b>
-                  <em>#{r.serial}</em>
-                </span>
-                <Logo companyId={r.companyId} size={24} />
-                <span className="recent-when">{r.who}</span>
-              </li>
-            );
-          })}
-        </ul>
+        {RECENT.length === 0
+          ? <p className="note">Nothing minted yet.</p>
+          : <MintList rows={RECENT} />}
       </div>
     </div>
   );
