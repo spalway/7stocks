@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { CeoArt, Logo } from './CeoArt.jsx';
 import Countdown from './Countdown.jsx';
+import ContractPill from './ContractPill.jsx';
 import { segment } from './PotAllocation.jsx';
 import { explorer } from './cluster.js';
 import {
@@ -203,6 +204,8 @@ export default function Mint({ now }) {
       <section className="hero hero-mint">
         <h1>Mint a CEO</h1>
         <p className="lede">One price, one button, seven possible outcomes.</p>
+
+        <ContractPill />
 
         <div className="mint-panel">
           <Reel playing={soldOut ? false : minting ? 'fast' : !landed} landed={landed} />
