@@ -12,8 +12,8 @@ import Collection from './Collection.jsx';
 import { useChain } from './useChain.js';
 import { ChainContext } from './live.js';
 
-const TWITTER = 'https://x.com/ceosfun';
-const HANDLE = '@ceosfun';
+const TWITTER = 'https://x.com/ceos_nft';
+const HANDLE = '@ceos_nft';
 
 /// lucide dropped its brand icons, and its `X` is the close cross, not this.
 function XLogo(props) {
