@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
-# CLOSE the mainnet program and refund its rent to a wallet. IRREVERSIBLE: the
-# program id can never be reused. Run from the host:
-#   wsl -d Ubuntu -- bash -lc "tr -d '\r' < /mnt/c/Users/skizp/crypto/new_projects/ceos/anchor/wslclose-mainnet.sh > ~/wslclose-ceos.sh && RPC='<helius mainnet url>' RECIPIENT=<wallet> bash ~/wslclose-ceos.sh"
+# CLOSE the mainnet program and refund its rent. IRREVERSIBLE.
+# Nothing to pass in: the RPC comes from the repo's .env.local and the
+# recipient is fixed below. Run from any PowerShell window:
+#   wsl -d Ubuntu -- bash -lc "tr -d '' < /mnt/c/Users/skizp/crypto/new_projects/ceos/anchor/wslclose-mainnet.sh > ~/wslclose-ceos.sh && bash ~/wslclose-ceos.sh"
 set -e
 SRC=/mnt/c/Users/skizp/crypto/new_projects/ceos
 KEY=~/.config/solana/ceos-mainnet.json
-URL="${RPC:-https://api.mainnet-beta.solana.com}"
 PROGRAM=3A1sabNyVq3vjnYp3zt6nzr89wNAUJQQBgjwTezr6r7w
-[ -n "$RECIPIENT" ] || { echo "set RECIPIENT=<wallet that receives the rent>" >&2; exit 1; }
+RECIPIENT=BLumS6v9u56JrH6EH5heVpHHb956fkiYVxn4oL9BtBvm
+# RPC: the HELIUS_RPC line of .env.local. A bare key or a full URL both work;
+# the host is forced to mainnet either way.
+RAW=$(tr -d '' < "$SRC/.env.local" | sed -n 's/^HELIUS_RPC=//p' | head -1 | tr -d '"'"'"' ')
+case "$RAW" in
+  http*) URL=$(echo "$RAW" | sed 's/devnet.helius-rpc.com/mainnet.helius-rpc.com/') ;;
+  "")    URL=https://api.mainnet-beta.solana.com ;;
+  *)     URL="https://mainnet.helius-rpc.com/?api-key=$RAW" ;;
+esac
 mkdir -p ~/.config/solana
 cp "$SRC/mainnet-authority.json" "$KEY"; chmod 600 "$KEY"
 cd ~/dev/ceos
