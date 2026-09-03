@@ -82,9 +82,14 @@ async function setup() {
   if (exists) {
     console.log('  sharing config exists — only updating shares');
   } else {
-    const { isGraduated } = await online.getMinimumDistributableFee(mint).catch(() => ({ isGraduated: false }));
+    // Graduated means the canonical PumpSwap pool exists. Read that directly:
+    // the SDK's fee helper throws on a graduated coin whose AMM creator vault
+    // has not been touched yet, which is exactly the state of a fresh launch.
+    const pool = canonicalPumpPoolPda(mint);
+    const isGraduated = !!(await conn.getAccountInfo(pool));
+    console.log(`  graduated ${isGraduated ? 'yes, pool ' + pool.toBase58() : 'no, still on the bonding curve'}`);
     ixs.push(await offline.createFeeSharingConfig({
-      creator, mint, pool: isGraduated ? canonicalPumpPoolPda(mint) : null,
+      creator, mint, pool: isGraduated ? pool : null,
     }));
   }
   ixs.push(await offline.updateFeeShares({
