@@ -88,6 +88,26 @@ export default function Skyline() {
   const [H, setH] = useState(1000);
   const frame = useRef(null);
 
+  // Scroll progress, 0 at the top of any page and 1 about one viewport down.
+  // Drives the parallax: the seven grow taller and the grey filler sinks out of
+  // the frame, so scrolling reads as the city rising around the content.
+  // Throttled to one state write per animation frame.
+  const [p, setP] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const span = Math.max(400, window.innerHeight * 0.9);
+        setP(Math.max(0, Math.min(1, window.scrollY / span)));
+      });
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
   // Track BOTH dimensions of the container, so the viewBox is exactly the box
   // it is drawn into and the SVG maps 1:1 to the screen. Any mismatch means
   // `slice` scales the scene to cover, and the scale crops the outermost tower
@@ -156,7 +176,10 @@ export default function Skyline() {
       ? centre - towerW / 2
       : (w - flankW) + centre - towerW / 2;
     const x = Math.max(0, Math.min(w - towerW, raw));
-    const h = unit * heights[i];
+    // Grows with scroll, up to 45%. The crowns are allowed to climb out of
+    // the top of the frame: a tower whose top you can no longer see reads as
+    // taller than one whose growth was capped to fit.
+    const h = unit * Math.round(heights[i] * (1 + 0.45 * p));
     return { ...c, x: Math.round(x / unit) * unit, y: baseY - h, w: towerW, h };
   });
 
@@ -191,8 +214,10 @@ export default function Skyline() {
           </g>
         ))}
 
+        {/* Filler sinks with scroll, nearer bands faster, until it is out of
+            the frame and only the seven are left standing. */}
         {[far, mid, near].map((band, bi) => (
-          <g key={bi}>
+          <g key={bi} transform={`translate(0, ${Math.round(p * H * [0.45, 0.6, 0.8][bi])})`}>
             {band.map((b, i) => (
               <g key={i}>
                 <rect x={b.x} y={b.y} width={b.w} height={b.h} fill={fillerFill[bi]} />
