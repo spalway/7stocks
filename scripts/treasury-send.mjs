@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import {
   Connection, Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL,
 } from '@solana/web3.js';
+import { parseSecret } from './shared.mjs';
 
 function loadEnvLocal() {
   try {
@@ -78,9 +79,8 @@ if (!keyFile) {
 
 const ENV_KEY = { treasury: 'TREASURY_SECRET', pot: 'POT_SECRET', oldpot: 'OLD_POT_SECRET', authority: 'AUTHORITY_SECRET' };
 const envKey = process.env[ENV_KEY[which]];
-const treasury = Keypair.fromSecretKey(
-  Uint8Array.from(envKey ? JSON.parse(envKey) : JSON.parse(fs.readFileSync(keyFile, 'utf8'))),
-);
+const treasury = parseSecret(envKey ?? fs.readFileSync(keyFile, 'utf8'));
+if (!treasury) { log(`${keyFile}: not a JSON byte array or base58 private key`); process.exit(1); }
 
 const connection = new Connection(RPC, 'confirmed');
 

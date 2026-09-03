@@ -31,7 +31,39 @@ export const IS_MAINNET = CLUSTER === 'mainnet' || CLUSTER === 'mainnet-beta';
 const WALLET_FILE = IS_MAINNET ? 'mainnet-authority.json' : 'public/dev-wallet.json';
 const DEPLOY_FILE = IS_MAINNET ? 'public/deploy.mainnet.json' : 'public/deploy.json';
 
-const fromSecret = (json) => Keypair.fromSecretKey(Uint8Array.from(JSON.parse(json)));
+/// A secret key as text, in either form a wallet hands out: the JSON byte
+/// array the Solana CLI writes, or the base58 string Phantom exports under
+/// "Show private key". Returns null if it is neither.
+export function parseSecret(text) {
+  const t = String(text ?? '').trim();
+  if (!t) return null;
+  if (t.startsWith('[')) {
+    try { return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(t))); } catch { return null; }
+  }
+  const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  const bytes = [0];
+  for (const ch of t) {
+    const v = ALPHABET.indexOf(ch);
+    if (v < 0) return null;
+    let carry = v;
+    for (let i = 0; i < bytes.length; i += 1) {
+      carry += bytes[i] * 58;
+      bytes[i] = carry & 0xff;
+      carry >>= 8;
+    }
+    while (carry) { bytes.push(carry & 0xff); carry >>= 8; }
+  }
+  for (const ch of t) { if (ch !== '1') break; bytes.push(0); }
+  const key = Uint8Array.from(bytes.reverse());
+  if (key.length !== 64) return null;
+  try { return Keypair.fromSecretKey(key); } catch { return null; }
+}
+
+const fromSecret = (text) => {
+  const kp = parseSecret(text);
+  if (!kp) throw new Error('secret key is neither a JSON byte array nor a base58 private key');
+  return kp;
+};
 
 /// The program authority: initializes config and the engine, creates the
 /// collection. Never needed by the 5-minute cycle.
@@ -55,10 +87,9 @@ export function potWallet() {
   if (process.env.POT_SECRET) {
     // A placeholder left in the hosted variables is the expected state before
     // launch; say so instead of dying on a JSON parse.
-    if (!process.env.POT_SECRET.trim().startsWith('[')) {
-      throw new Error('POT_SECRET is not set yet: paste the pot keypair (JSON byte array) into the cycle service variables');
-    }
-    return fromSecret(process.env.POT_SECRET);
+    const kp = parseSecret(process.env.POT_SECRET);
+    if (!kp) throw new Error('POT_SECRET is not set yet: paste the pot private key (Phantom base58 export or JSON byte array) into the cycle service variables');
+    return kp;
   }
   const path = resolve(root, 'pot-wallet.json');
   if (existsSync(path)) return fromSecret(readFileSync(path, 'utf8'));

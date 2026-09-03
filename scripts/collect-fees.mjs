@@ -18,7 +18,7 @@ import {
   Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, Transaction, sendAndConfirmTransaction,
 } from '@solana/web3.js';
 import pumpSdk from '@pump-fun/pump-sdk';
-import { config, potWallet, root } from './shared.mjs';
+import { config, potWallet, root, parseSecret } from './shared.mjs';
 
 const { OnlinePumpSdk, PumpSdk, feeSharingConfigPda, canonicalPumpPoolPda } = pumpSdk;
 
@@ -41,14 +41,14 @@ const sharingConfigAddress = feeSharingConfigPda(mint);
 
 const sol = (lamports) => `${(Number(lamports.toString()) / LAMPORTS_PER_SOL).toFixed(6)} SOL`;
 
+/// The pump.fun deployer key. When the same wallet is also the pot, the pot
+/// key already on disk is it and no separate file is needed.
 function creatorWallet() {
   const path = resolve(root, 'creator-wallet.json');
-  if (!existsSync(path)) {
-    throw new Error('creator-wallet.json missing. It must hold the pump.fun deployer key. Never commit it.');
-  }
-  const kp = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(readFileSync(path, 'utf8'))));
+  const kp = existsSync(path) ? parseSecret(readFileSync(path, 'utf8')) : potWallet();
+  if (!kp) throw new Error('creator-wallet.json is neither a JSON byte array nor a base58 private key');
   if (!kp.publicKey.equals(creator)) {
-    throw new Error(`creator-wallet.json is ${kp.publicKey.toBase58()} but pump.creator is ${creator.toBase58()}`);
+    throw new Error(`creator key is ${kp.publicKey.toBase58()} but pump.creator is ${creator.toBase58()}; put the deployer key in creator-wallet.json`);
   }
   return kp;
 }
