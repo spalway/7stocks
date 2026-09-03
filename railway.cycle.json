@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "_comment": "Second Railway service, same repo. Set its 'Config File Path' to railway.cycle.json. Needs POT_SECRET, HELIUS_RPC and CLUSTER=mainnet as variables; SUPABASE_URL and SUPABASE_SERVICE_KEY to write the mirror. NEVER restart: a cron run that fails must not loop, the next tick retries and the cycle is idempotent.",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm ci --omit=dev"
+  },
+  "deploy": {
+    "startCommand": "npm run cycle -- --send",
+    "cronSchedule": "*/5 * * * *",
+    "restartPolicyType": "NEVER"
+  }
+}

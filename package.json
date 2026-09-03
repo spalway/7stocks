@@ -1,0 +1,48 @@
+{
+  "name": "nodes-template",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "wallet": "node scripts/wallet.mjs",
+    "collection": "node scripts/create-collection.mjs",
+    "init": "node scripts/initialize.mjs",
+    "stocks": "node scripts/mock-stocks.mjs",
+    "engine": "node scripts/engine.mjs",
+    "status": "node scripts/status.mjs",
+    "mint": "node scripts/mint.mjs",
+    "airdrop": "node scripts/airdrop.mjs",
+    "vaults": "node scripts/vaults.mjs",
+    "sweep": "node scripts/sweep.mjs",
+    "cycle": "node scripts/cycle.mjs",
+    "sync": "node scripts/cycle.mjs --sync-only",
+    "interval": "node scripts/set-interval.mjs",
+    "fees": "node scripts/collect-fees.mjs",
+    "dev": "vite",
+    "build": "vite build",
+    "start": "node server/index.mjs",
+    "serve": "npm run build && node server/index.mjs",
+    "idl-check": "node scripts/idl-check.mjs"
+  },
+  "dependencies": {
+    "@metaplex-foundation/mpl-core": "^1.10.0",
+    "@metaplex-foundation/umi": "^1.5.1",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.5.1",
+    "@pump-fun/pump-sdk": "^1.36.0",
+    "@solana/spl-token": "^0.4.15",
+    "@solana/wallet-adapter-base": "^0.9.27",
+    "@solana/wallet-adapter-react": "^0.15.39",
+    "@solana/web3.js": "^1.98.4",
+    "buffer": "^6.0.3",
+    "lucide-react": "^1.37.0",
+    "pngjs": "^7.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

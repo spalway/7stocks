@@ -1,0 +1,36 @@
+{
+  "rpc": "https://api.devnet.solana.com",
+  "rpcMainnet": "https://api.mainnet-beta.solana.com",
+  "collectionName": "CEOs",
+  "uriBase": "https://ceos.fun/meta",
+  "royaltyBasisPoints": 500,
+  "priceSol": 0.3,
+  "supplyPerClass": 100,
+  "treasury": "F7ivZZGjZKC8vhzL2KgxtScPqwrKkXTYHFUQ2xq6iL1i",
+  "cycleSeconds": 300,
+  "dustFloorUnits": 0.000001,
+  "stocks": {
+    "amzn":  "Xs3eBt7uRfJX8QUs4suhyU8p2M6DoUDrJyWBa8LLZsg",
+    "googl": "XsCPL9dNWBMvFtTmwcCA5v3xWPSMEBCszbQdiLLq6aN",
+    "meta":  "Xsa62P5mvPszXL1krVUnU5ar38bBSVcWAB6fmPCo5Zu",
+    "nvda":  "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh",
+    "msft":  "XspzcW1PRtgf6Wj92HCiZdjzKCyFekVD8P5Ueh3dRMX",
+    "aapl":  "XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp",
+    "tsla":  "XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB"
+  },
+  "pump": {
+    "mode": "share",
+    "rpc": "https://api.mainnet-beta.solana.com",
+    "mint": null,
+    "creator": null,
+    "minSweepSol": 0.05,
+    "holderBps": 9000,
+    "protocolWallet": "F7ivZZGjZKC8vhzL2KgxtScPqwrKkXTYHFUQ2xq6iL1i",
+    "potWallet": null
+  },
+  "_notes": {
+    "uriBase": "Must be a public origin. Wallets and explorers fetch token metadata from their own servers, so localhost resolves to nothing for everyone but you.",
+    "stocks": "Mainnet xStock mints (Token-2022). They do not exist on devnet — `npm run stocks` mints stand-ins there.",
+    "pump": "npm run fees -- --setup --send (once, creator key) makes pump.fun split fees on-chain holderBps/rest between potWallet and protocolWallet; distribute is then permissionless and the cycle does it. potWallet = pot-wallet.json pubkey."
+  }
+}

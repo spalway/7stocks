@@ -1,0 +1,35 @@
+node_modules
+dist
+.vite
+
+# Local env, including the RPC key.
+.env.local
+
+# Program build output. Builds happen in WSL/Linux, not here.
+anchor/target
+anchor/.anchor
+
+# Editor/session backups
+.bak-*
+
+# ---------------------------------------------------------------------------
+# Keypairs. Real money once funded. Never commit any of these.
+#
+# Back them up somewhere outside the repo: after a wallet is swept, the file is
+# the only thing that makes it yours.
+# ---------------------------------------------------------------------------
+
+# Program and collection authority.
+mainnet-authority.json
+
+# Receives mint payments.
+treasury-wallet.json
+
+# Buys assets and runs distribution rounds.
+pot-wallet.json
+
+# Throwaway devnet signing key served from /public. Devnet only, by design.
+public/dev-wallet.json
+
+# program upgrade key — never commit
+anchor/ceos-keypair.json

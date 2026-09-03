@@ -1,0 +1,1571 @@
+/* ===========================================================================
+ * CEOs.fun
+ *
+ * Black page, white type, white accent. The restraint is the joke: a boring
+ * corporate deck wrapped around a parody NFT mint. Colour only ever enters
+ * through the seven companies, which is what makes it read as data rather than
+ * decoration.
+ *
+ * Nothing below should introduce a raw colour. If a new one is needed, add a
+ * token — except inside a `--brand` scope, where the colour is a company's and
+ * arrives as a custom property from the component.
+ * ======================================================================== */
+
+:root {
+  --bg: #000000;
+  /* Not pure black. Panels a shade above the page give the layout structure
+     without a single visible border doing all the work. */
+  --shell: #050506;
+  --shell-line: #1a1b1e;
+  --card: #0a0a0c;
+  --card-line: #212226;
+  --well: #030304;
+
+  --text: #ffffff;
+  --muted: #8b8f96;
+  --dim: #5a5e65;
+  --accent: #ffffff;
+  --danger: #ff4d4d;
+  --ok: #3ddc84;
+
+  --grid: rgba(255, 255, 255, 0.022);
+  --grid-size: 26px;
+
+  /* ONE width. Every container on the page is this wide — nav, hero, and every
+     shell — so nothing steps in or out as you scroll. Reading measure is
+     handled inside the containers by capping paragraphs, not by making some
+     boxes narrower than others. */
+  --column: 1000px;
+  /* What the containers occupy: the column minus the page gutter. The nav bar
+     matches this, not --column, or it overhangs the shells by 16px. */
+  --content: calc(var(--column) - 32px);
+
+  /* Squared, not rounded. Business software is not friendly-looking. */
+  --radius: 4px;
+  --radius-sm: 3px;
+
+  /* All seven, in roster order. The one place the full set appears as a
+     single value — used for the mint button's border. */
+  --seven: linear-gradient(90deg,
+    #FF9900 0%, #4285F4 17%, #0064E0 33%, #76B900 50%,
+    #00A4EF 67%, #A2AAAD 83%, #E82127 100%);
+
+  --display: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  font-family: var(--display);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------------------------------------------ skyline */
+
+/* Fixed to the bottom of the viewport and behind everything. Anchoring it to
+   the viewport rather than the document is what makes one continuous city
+   instead of a strip that scrolls away after the first screen. */
+.skyline {
+  position: fixed;
+  left: 0;
+  right: 0;
+  /* Pulled below the viewport so the bases are cropped by the frame rather than
+     resting on a visible ground line. */
+  bottom: -80px;
+  /* Runs almost the full height so the crowns reach up under the header. */
+  top: 64px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+  /* No mask. A gradient fade at the top was a black smear laid over a black
+     page; the nav has its own backdrop and covers what sits behind it. */
+}
+
+.skyline svg { display: block; width: 100%; height: 100%; }
+
+/* The seven towers pulse in their own company colour, staggered so the skyline
+   breathes rather than blinking in unison. */
+.tower-glow {
+  opacity: 0.25;
+  animation: tower-pulse 4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.55s);
+}
+
+@keyframes tower-pulse {
+  0%, 100% { opacity: 0.14; }
+  50% { opacity: 0.6; }
+}
+
+/* --------------------------------------------------------------------- page */
+
+.page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--column);
+  margin: 0 auto;
+  padding: 0 16px 200px;
+}
+
+/* --------------------------------------------------------------- typography */
+
+h1, h2, h3, .wordmark, .cta, button, .nav a {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Micro-labels. Wide tracking on small caps against tight tracking on large
+   bold text is most of the "designed" feeling in the whole system. */
+.label, .hero-stats dt, .mint-facts dt, .doc-table-head, .alloc-head,
+.docs-rail-head, .site-foot {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--shell-line);
+}
+
+.label > span:last-child { color: var(--dim); }
+
+/* Figures line up without a monospace face — which is what stops this looking
+   like every other crypto site. */
+.hero-stats dd, .mint-facts dd, .alloc-count, .countdown-row, .countdown-inline,
+.ceo-card-meter-text, .doc-table-row, .odds-left, .alloc-bar-cell i {
+  font-variant-numeric: tabular-nums;
+}
+
+a { color: var(--accent); }
+
+/* ----------------------------------------------------------------- masthead */
+
+.masthead { display: flex; justify-content: center; padding: 18px 0 26px; }
+
+.nav-shell {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: var(--content);
+  padding: 10px 14px;
+  border: 1px solid var(--shell-line);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.wordmark {
+  font-size: 16px;
+  text-decoration: none;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.wordmark b { color: var(--muted); font-weight: 700; }
+
+.nav { display: flex; gap: 2px; margin-right: auto; }
+
+.nav a {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color 0.16s ease, background 0.16s ease;
+}
+.nav a:hover { color: var(--text); background: rgba(255, 255, 255, 0.05); }
+.nav a.active { color: var(--text); }
+
+.nav-x {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid var(--shell-line);
+  border-radius: var(--radius-sm);
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+.nav-x:hover { color: var(--text); border-color: var(--card-line); }
+
+.connect {
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+.connect:hover { opacity: 0.86; }
+
+/* --------------------------------------------------------------------- hero */
+
+.hero { padding: 0 0 22px; }
+
+/* The opening section sits in the same box as everything else rather than
+   floating loose above the first shell. */
+.hero-shell { padding: 26px 22px 16px; margin-bottom: 12px; }
+.hero-shell > h1 { margin-top: 0; }
+
+.hero h1 { margin: 0 0 12px; font-size: 42px; line-height: 1.08; }
+
+.hero .lede {
+  margin: 0 0 16px;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* The containers are wide; the prose inside them is not. Sixty-odd characters
+   is the readable measure regardless of how wide the box around it is. */
+.hero p, .hero .lede { margin: 0 0 16px; max-width: 66ch; }
+.hero p { color: var(--muted); }
+.hero p b { color: var(--text); }
+
+/* Copy left, slideshow right. The slideshow column is fixed so the prose
+   keeps its measure; below tablet width it drops under the copy. */
+/* Two rows: copy beside the slideshow, then the contract button beside the
+   mint button, so the two controls sit on one line. */
+.hero-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-rows: auto auto;
+  gap: 6px 24px;
+  align-items: center;
+}
+.hero-aside { display: flex; flex-direction: column; width: 260px; justify-self: center; align-self: center; }
+.hero-aside .slideshow { width: 100%; }
+.hero-body .ca-wrap { margin: 0; align-self: end; }
+.hero-body .ca-btn { min-height: 54px; }
+.hero-mint-cta { width: 260px; margin: 0; justify-self: center; align-self: end; min-height: 46px; box-sizing: border-box; }
+.hero-copy { min-width: 0; }
+/* The lede is set larger than the body, so its 66ch is wider; scale its
+   measure down so both blocks end on the same right edge. */
+.hero-copy .lede { max-width: 59.2ch; }
+
+/* --------------------------------------------------------------- slideshow */
+
+/* Centred in its column, both ways, against the copy beside it. */
+.slideshow { width: 260px; justify-self: center; align-self: center; }
+/* Name tag flush under the portrait, and larger than the card version. */
+.slideshow .ceo-card-plate { margin-top: 0; border-radius: 0 0 3px 3px; gap: 12px; padding: 11px 13px; }
+.slideshow .ceo-card-plate .ceo-card-names b { font-size: 14px; letter-spacing: 0.03em; }
+.slideshow .ceo-card-plate .ceo-card-names em { font-size: 11.5px; }
+.slideshow .slide-art { border-radius: 3px 3px 0 0; }
+.slide { animation: slide-fade var(--period) ease-in-out both; }
+@keyframes slide-fade {
+  0%   { opacity: 0; transform: translateY(6px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  88%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+/* Same frame as a card portrait: one hard brand outline, black behind. */
+.slide-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid var(--brand);
+  border-radius: 3px;
+  background: #000;
+  overflow: hidden;
+}
+.slide-quads { position: absolute; inset: 0; display: block; }
+.slide-quads svg { display: block; width: 100%; height: 100%; }
+
+.slide-dots { display: flex; justify-content: center; gap: 5px; margin-top: 8px; }
+.slide-dots i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--card-line);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.slide-dots i.on { background: var(--dot); transform: scale(1.35); }
+
+/* Pending portrait: the class exists, the art does not yet. */
+.ceo-pending {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  background:
+    repeating-linear-gradient(45deg, transparent 0 8px, rgba(255, 255, 255, 0.025) 8px 9px),
+    #0a0a0c;
+}
+.ceo-pending .logo-chip { opacity: 0.7; }
+.ceo-pending i { font-style: normal; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.ceo-card-art .ceo-pending { position: absolute; }
+
+@media (max-width: 760px) {
+  .hero-body { grid-template-columns: 1fr; grid-template-rows: none; }
+  .hero-aside { width: min(260px, 100%); margin: 4px auto 12px; }
+  .hero-mint-cta { width: 100%; margin-top: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide { animation: none; }
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 30px;
+}
+.hero-actions .cta { min-width: 260px; }
+
+.hero-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px 0 16px;
+}
+.hero-drop-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-top: 26px;
+  background: var(--shell-line);
+  border: 1px solid var(--shell-line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+/* A colour rule down the left of each cell rather than a tinted fill: the
+   numbers still have to be read against black, and a wash behind them costs
+   contrast for no gain. */
+.hero-stats > div {
+  padding: 12px 14px;
+  background: var(--card);
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+.hero-stats dd { color: var(--brand); }
+.hero-stats dt { margin: 0 0 4px; }
+.hero-stats dd { margin: 0; font-size: 18px; font-weight: 700; }
+.hero-stats dd i { font-style: normal; color: var(--dim); font-size: 13px; font-weight: 500; }
+
+/* ------------------------------------------------------------------ buttons */
+
+/* Two backgrounds, two clip boxes: the white fill is clipped to padding-box and
+   the seven-colour ramp to border-box, so the gradient shows only in the border
+   ring. `border-image` was the obvious approach and the wrong one — it does not
+   follow border-radius, so the corners came out square. */
+.cta {
+  display: inline-block;
+  padding: 13px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  color: #000;
+  border: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(var(--accent), var(--accent)) padding-box,
+    var(--seven) border-box;
+  transition: opacity 0.16s ease, transform 0.12s ease;
+}
+.cta:hover { opacity: 0.86; }
+.cta:active { transform: translateY(1px); }
+
+.cta-ghost {
+  margin-top: 18px;
+  color: var(--text);
+  border-width: 1px;
+  background:
+    linear-gradient(#000, #000) padding-box,
+    linear-gradient(var(--card-line), var(--card-line)) border-box;
+}
+.cta-ghost:hover {
+  opacity: 1;
+  background:
+    linear-gradient(#000, #000) padding-box,
+    var(--seven) border-box;
+}
+
+/* ------------------------------------------------------------------- shells */
+
+section { margin-bottom: 22px; }
+
+.shell {
+  padding: 18px;
+  border: 1px solid var(--shell-line);
+  border-radius: var(--radius);
+  background: var(--shell);
+}
+
+/* Retained as a hook, but no longer changes the width — every container is the
+   same box. Kept so the markup does not have to be rewritten if a genuinely
+   full-bleed section is ever wanted. */
+.shell-wide { width: auto; margin-left: 0; }
+
+.shell-lede { margin: 0 0 18px; color: var(--muted); max-width: 68ch; }
+
+/* -------------------------------------------------------------- allocations */
+
+.alloc { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+
+.alloc-chart { flex: none; }
+.alloc-slice { transition: opacity 0.16s ease; }
+.alloc-chart:hover .alloc-slice { opacity: 0.42; }
+.alloc-chart .alloc-slice:hover { opacity: 1; }
+
+.alloc-total {
+  fill: var(--text);
+  font-size: 30px;
+  font-weight: 700;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+.alloc-sub {
+  fill: var(--muted);
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.alloc-table { flex: 1; min-width: 300px; }
+
+.alloc-head, .alloc-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) 82px minmax(120px, 1.2fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.alloc-head { padding-bottom: 8px; border-bottom: 1px solid var(--shell-line); }
+.alloc-head > span:last-child { text-align: right; }
+
+.alloc-row {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--shell-line);
+}
+
+.alloc-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.alloc-name b { font-size: 12px; }
+.alloc-name em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alloc-count { font-size: 12px; font-weight: 700; }
+.alloc-count i { font-style: normal; color: var(--dim); font-weight: 500; }
+
+.alloc-bar-cell { display: flex; align-items: center; gap: 9px; }
+.alloc-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--well);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.alloc-bar-fill { display: block; height: 100%; background: var(--brand); }
+.alloc-bar-cell i { font-style: normal; font-size: 11px; color: var(--muted); width: 42px; text-align: right; }
+
+.alloc-note {
+  margin: 16px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.alloc-note b { color: var(--text); }
+
+/* ------------------------------------------------------------------- recent */
+
+.recent { list-style: none; margin: 0; padding: 0; }
+
+.recent li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--shell-line);
+}
+.recent li:last-child { border-bottom: 0; }
+
+.recent .ceo-art {
+  border: 1px solid var(--card-line);
+  border-radius: 2px;
+  box-shadow: inset 0 -2px 0 var(--brand);
+}
+
+.recent-meta { display: flex; flex-direction: column; margin-right: auto; }
+.recent-meta b { font-size: 12.5px; }
+.recent-meta em { font-style: normal; font-size: 11px; color: var(--dim); }
+.recent-when { font-size: 11px; color: var(--dim); }
+
+/* ------------------------------------------------------------------ gallery */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.gallery-item {
+  display: flex;
+  line-height: 0;
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  box-shadow: inset 0 -3px 0 var(--brand);
+  transition: transform 0.16s ease;
+}
+.gallery-item:hover { transform: translateY(-2px); }
+.gallery-item .ceo-art { width: 100%; height: auto; }
+.gallery-item svg { width: 100%; height: auto; }
+
+/* --------------------------------------------------------------------- mint */
+
+.hero-mint { padding-bottom: 26px; }
+
+.mint-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) 1fr;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid var(--shell-line);
+  border-radius: var(--radius);
+  background: var(--shell);
+}
+
+/* The reel is the portrait and its name plate, nothing else: no inner card,
+   no padding, so the face runs edge to edge and the plate starts where the
+   image ends. Same fade as the landing slideshow while idle. */
+.reel { display: flex; flex-direction: column; align-self: stretch; }
+.reel-slide { display: flex; flex-direction: column; flex: 1; }
+.reel-slide.is-fading { animation: slide-fade var(--period) ease-in-out both; }
+/* Square, sharp, nothing over the face: a 2px brand outline and that is all. */
+.reel-art {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid var(--brand);
+  border-bottom: 0;
+  border-radius: 0;
+  background: #000;
+  overflow: hidden;
+  line-height: 0;
+}
+.reel-art .ceo-art, .reel-art svg { display: block; width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; }
+/* The plate grows to fill whatever height the facts column needs, so the
+   frame ends level with the button and there is no black gap under it. */
+/* Doubled selector on purpose: .ceo-card-plate sets a margin and radius later in the file. */
+.reel .reel-plate { flex: 1; margin-top: 0; border-radius: 0; gap: 12px; padding: 12px 14px; min-height: 64px; }
+.reel-plate .ceo-card-names b { font-size: 15px; letter-spacing: 0.03em; }
+.reel-plate .ceo-card-names em { font-size: 12px; }
+
+/* Price, facts and the fine print at the top; the button is pushed to the
+   bottom so it sits level with the reel's name plate. */
+.mint-side { display: flex; flex-direction: column; }
+.mint-fine-panel { margin: 12px 0 14px; }
+.mint-side .mint-cta { margin-top: auto; min-height: 46px; }
+
+
+.mint-price { display: flex; align-items: baseline; gap: 7px; margin-bottom: 14px; }
+.mint-price-num { font-size: 44px; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+.mint-price-unit { font-size: 15px; color: var(--muted); font-weight: 600; }
+
+.mint-facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  margin: 0 0 16px;
+  background: var(--shell-line);
+  border: 1px solid var(--shell-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.mint-facts > div { padding: 9px 11px; background: var(--card); }
+.mint-facts dt { margin: 0 0 3px; }
+.mint-facts dd { margin: 0; font-size: 14px; font-weight: 700; }
+
+.mint-cta {
+  width: 100%;
+  padding: 14px 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+.mint-cta:hover:not(:disabled) { opacity: 0.86; }
+/* Restated rather than inherited: a global `button:disabled` rule elsewhere
+   will otherwise win and blank the fill. */
+.mint-cta:disabled {
+  background: var(--card);
+  border-color: var(--card-line);
+  color: var(--dim);
+  cursor: not-allowed;
+}
+
+.mint-fine { margin: 12px 0 0; font-size: 11.5px; color: var(--dim); }
+
+/* --------------------------------------------------------------------- odds */
+
+.odds { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1px;
+  background: var(--shell-line); border: 1px solid var(--shell-line); border-radius: var(--radius);
+  overflow: hidden; }
+
+.odds-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  background: var(--shell);
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+
+.odds-name { display: flex; flex-direction: column; margin-right: auto; min-width: 0; }
+.odds-name b { font-size: 12.5px; }
+.odds-name em { font-style: normal; font-size: 11px; color: var(--dim); }
+.odds-left { font-size: 12px; color: var(--muted); }
+.odds-left b { color: var(--text); }
+.odds-left i { font-style: normal; color: var(--dim); }
+
+/* -------------------------------------------------------------------- steps */
+
+/* ------------------------------------------------------------- odds pie */
+
+.odds-pie { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+.odds-pie svg { flex: 0 0 auto; }
+.odds-legend { list-style: none; margin: 0; padding: 0; flex: 1 1 260px; min-width: 0; }
+.odds-legend li {
+  display: grid;
+  grid-template-columns: 8px 18px minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--card-line);
+  font-size: 12.5px;
+}
+.odds-legend li:last-child { border-bottom: 0; }
+.odds-swatch { width: 8px; height: 8px; border-radius: 2px; background: var(--brand); }
+.odds-legend b { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.odds-legend span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.odds-legend em { font-style: normal; color: var(--brand); font-weight: 700; min-width: 5ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------ your collection */
+
+.note { margin: 0; padding: 14px; font-size: 12.5px; color: var(--muted); border: 1px dashed var(--card-line); border-radius: var(--radius-sm); }
+
+.mine { display: grid; gap: 10px; }
+.mine-card {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+.mine-well {
+  width: 112px; aspect-ratio: 1;
+  border: 2px solid var(--brand); border-radius: 3px; background: #000; overflow: hidden;
+}
+.mine-well .ceo-art, .mine-well svg { display: block; width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; }
+.mine-body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mine-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mine-head h3 { margin: 0; font-size: 15px; color: var(--brand); }
+.mine-head h3 span { color: var(--dim); font-weight: 600; font-size: 12px; margin-left: 4px; }
+.mine-links { display: flex; gap: 12px; font-size: 11px; }
+.mine-links a { color: var(--muted); text-decoration: none; letter-spacing: 0.04em; }
+.mine-links a:hover { color: #fff; text-decoration: underline; }
+.mine-holdings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 0; background: var(--card-line); border: 1px solid var(--card-line); border-radius: var(--radius-sm); overflow: hidden; }
+.mine-holdings > div { padding: 8px 10px; background: var(--shell); }
+.mine-holdings dt { margin: 0 0 3px; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.mine-holdings dd { margin: 0; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mine-holdings dd b { color: var(--text); }
+.mine-holdings dd a { color: var(--text); text-decoration: none; font-family: 'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace; }
+.mine-holdings .is-pending dd b { color: var(--brand); }
+.mine-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+.mine-actions .cta-ghost { margin-top: 0; padding: 9px 14px; font-size: 12px; }
+.mine-note { font-size: 11px; color: var(--dim); margin-right: auto; }
+
+@media (max-width: 560px) {
+  .mine-card { grid-template-columns: 84px minmax(0, 1fr); }
+  .mine-well { width: 84px; }
+  .mine-holdings { grid-template-columns: 1fr 1fr; }
+}
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.steps li {
+  padding: 11px 13px;
+  font-size: 12.5px;
+  color: var(--muted);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+.steps li b { margin-right: 9px; color: var(--text); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- countdown */
+
+/* Number on top, unit underneath, the colon riding at the number's height. */
+.countdown-row { display: inline-flex; align-items: flex-start; gap: 8px; }
+.countdown-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; min-width: 2.2ch; }
+.countdown-cell b { font-size: 21px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.countdown-cell i { font-style: normal; font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.12em; }
+.countdown-sep { color: var(--dim); font-size: 18px; line-height: 1.15; }
+.countdown-inline { font-size: 14px; font-weight: 700; }
+
+/* --------------------------------------------------------------------- docs */
+
+.docs-layout { position: relative; }
+
+.docs-rail { display: none; }
+
+/* The rail hangs outside the reading column and only exists when the viewport
+   can afford it. `min()` against a viewport-derived width lets it shrink
+   smoothly instead of jumping between fixed sizes. */
+@media (min-width: 1440px) {
+  .docs-rail {
+    display: block;
+    position: fixed;
+    top: 120px;
+    left: calc(50vw - var(--column) / 2 - 224px);
+    width: min(200px, calc(50vw - 520px));
+  }
+  .docs-rail ol { list-style: none; margin: 0; padding: 0; }
+  .docs-rail li { animation: rail-in 0.4s ease backwards; animation-delay: calc(var(--i) * 0.03s); }
+  .docs-rail a {
+    display: flex;
+    gap: 9px;
+    padding: 5px 8px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: color 0.14s ease, background 0.14s ease;
+  }
+  .docs-rail a:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+  .docs-rail a.on { color: var(--text); }
+  .docs-rail-n { color: var(--dim); font-variant-numeric: tabular-nums; }
+  .docs-rail-head { display: block; margin-bottom: 10px; padding-left: 8px; }
+}
+
+@keyframes rail-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.chapter { scroll-margin-top: 90px; }
+.doc p { margin: 0 0 13px; color: var(--muted); max-width: 68ch; }
+.doc p b { color: var(--text); }
+.doc p.muted { color: var(--dim); font-size: 12px; }
+.doc code {
+  padding: 1px 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: var(--text);
+  background: var(--well);
+  border: 1px solid var(--card-line);
+  border-radius: 2px;
+}
+
+.doc-table {
+  margin: 16px 0;
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.doc-table-head, .doc-table-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 9px 12px;
+  align-items: center;
+}
+.doc-table-head { background: var(--well); }
+.doc-table-row { border-top: 1px solid var(--card-line); font-size: 12px; }
+.doc-table-row:nth-child(odd) { background: rgba(255, 255, 255, 0.012); }
+.doc-ceo { display: flex; align-items: center; gap: 8px; }
+
+/* Two-column table for the variants list. */
+.doc-table-head:has(> span:nth-child(2):last-child),
+.doc-table-row:has(> span:nth-child(2):last-child) {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* ------------------------------------------------------------ docs: flow */
+
+.flow { display: grid; gap: 0; margin: 18px 0 6px; }
+.flow-step {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--card-line);
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  position: relative;
+}
+.flow-step + .flow-step { margin-top: 18px; }
+/* The connector: a short vertical rule between steps with a chevron. */
+.flow-step + .flow-step::before {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: -18px;
+  width: 1px;
+  height: 18px;
+  background: var(--card-line);
+}
+.flow-n {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.06em;
+  color: #000; background: var(--flow, #fff);
+  border-radius: 3px;
+}
+.flow-step h4 { margin: 0 0 4px; font-size: 13.5px; }
+.flow-step p { margin: 0; font-size: 12.5px; color: var(--muted); max-width: none; }
+.flow-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.flow-share { padding: 9px 11px; border: 1px solid var(--card-line); border-radius: 3px; background: var(--shell); }
+.flow-share b { display: block; font-size: 18px; color: var(--share); line-height: 1.1; }
+.flow-share span { font-size: 11px; color: var(--muted); }
+
+.doc-figure { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+.doc-figure figure { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.doc-figure .fig-art { border: 2px solid var(--brand); border-radius: 3px; overflow: hidden; background: #000; line-height: 0; }
+.doc-figure .fig-art svg { display: block; width: 100%; height: auto; }
+.doc-figure figcaption { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.doc-figure figcaption b { color: var(--brand); }
+
+.doc-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px; margin: 14px 0; background: var(--card-line); border: 1px solid var(--card-line); border-radius: var(--radius-sm); overflow: hidden; }
+.doc-stats > div { padding: 10px 12px; background: var(--card); }
+.doc-stats dt { margin: 0 0 4px; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.doc-stats dd { margin: 0; font-size: 16px; font-weight: 700; color: var(--brand, var(--text)); }
+.doc-stats dd i { font-style: normal; font-size: 11px; color: var(--dim); font-weight: 500; }
+
+.doc-swatches { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.doc-swatch { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px 5px 6px; border: 1px solid var(--card-line); border-radius: 999px; font-size: 11px; color: var(--muted); }
+.doc-swatch i { width: 14px; height: 14px; border-radius: 50%; background: var(--sw); }
+
+.doc-faces { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.doc-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  box-shadow: inset 0 -3px 0 var(--brand);
+}
+.doc-face em { font-style: normal; font-size: 10px; letter-spacing: 0.1em; color: var(--muted); }
+
+/* --------------------------------------------------------------------- foot */
+
+.site-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid var(--shell-line);
+  color: var(--dim);
+}
+
+/* -------------------------------------------------------------- responsive */
+
+/* Breakpoints picked by resizing until something actually broke, not copied
+   from a framework's set. */
+
+@media (max-width: 720px) {
+  .hero h1 { font-size: 30px; }
+  .hero .lede { font-size: 14.5px; }
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .mint-panel { grid-template-columns: 1fr; }
+  .alloc { gap: 18px; }
+  .alloc-chart { margin: 0 auto; }
+  /* The city is decoration, and on a narrow screen the content column covers
+     the whole viewport — so there are no flanks left for it to live in. Pull it
+     right down rather than letting logos sit under body copy. */
+  .skyline { top: 40%; bottom: -60px; opacity: 0.4; }
+}
+
+@media (max-width: 620px) {
+  .nav-shell { flex-wrap: wrap; gap: 10px; padding: 10px; }
+  .nav { order: 3; width: 100%; margin-right: 0; }
+  .nav-x span { display: none; }
+  .alloc-head, .alloc-row { grid-template-columns: minmax(0, 1fr) 66px; }
+  .alloc-head > span:last-child, .alloc-bar-cell { display: none; }
+  .doc-table-head, .doc-table-row { grid-template-columns: 1.4fr 1fr 0.7fr 0.9fr; font-size: 11px; }
+}
+
+@media (max-width: 460px) {
+  .skyline { top: 50%; bottom: -50px; opacity: 0.3; }
+  .page { padding: 0 12px 160px; }
+  .hero h1 { font-size: 26px; }
+  .ceo-grid { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+  .mint-price-num { font-size: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, html { transition: none !important; scroll-behavior: auto; }
+  .tower-glow, .docs-rail li { animation: none; }
+  .tower-glow { opacity: 0.4; }
+}
+
+/* ===========================================================================
+ * Revision — blank portrait plates, circular logos, gradient name tags
+ * ======================================================================== */
+
+/* The portrait fills its slot; the art brings its own backdrop. */
+.ceo-art { display: block; line-height: 0; }
+.ceo-art svg { display: block; width: 100%; height: 100%; }
+
+/* Logos are circular and considerably larger than before — they are the fastest
+   way to tell one class from another now that the portraits are blank. */
+.logo-chip {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  /* A hairline ring keeps a light logo (Apple's grey, Microsoft's white field)
+     from bleeding into the panel behind it. */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+/* Name tags carry the company's full ramp rather than a flat tint. */
+.ceo-card-plate {
+  gap: 11px;
+  padding: 12px 13px;
+  background: var(--brand-grad);
+  border-top: 0;
+  border-bottom: 0;
+}
+.ceo-card-plate .ceo-card-names b { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); }
+.ceo-card-plate .ceo-card-names em { color: rgba(255, 255, 255, 0.82); }
+
+.ceo-card-ticker {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.34);
+  border-color: rgba(255, 255, 255, 0.35);
+  font-size: 10.5px;
+}
+
+
+/* Larger logo slots need a little more room around them in the dense rows. */
+.recent li { gap: 14px; }
+.odds-row { gap: 13px; }
+.alloc-name { gap: 10px; }
+.doc-ceo { gap: 10px; }
+
+/* ===========================================================================
+ * The seven — one row, card over connector over token
+ * ======================================================================== */
+
+/* Seven columns, always. `auto-fill` would reflow to four-and-three at some
+   width, and the whole point of this section is that the seven read as one
+   set — a wrapped row turns the last three into a second, lesser group. */
+/* Generous air above and below. The grid is a diagram sitting inside running
+   prose, and a diagram that crowds the paragraph before it reads as part of the
+   sentence rather than as the thing the sentence is pointing at. */
+.ceo-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  align-items: start;
+  margin: 38px 0 0;
+}
+
+.ceo-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+/* No frame. The card is a portrait and a name tag; the glow behind it is what
+   separates it from the panel rather than a border doing the work. */
+.ceo-card {
+  position: relative;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  transition: transform 0.18s ease;
+}
+.ceo-card::before {
+  content: '';
+  position: absolute;
+  inset: -14px -10px 4px;
+  z-index: -1;
+  border-radius: 12px;
+  /* One solid colour, bled out to nothing. This is the only place the brand
+     colour is allowed to be soft — everywhere else it is a hard edge. */
+  background: radial-gradient(60% 55% at 50% 40%, color-mix(in srgb, var(--brand) 34%, transparent), transparent 72%);
+  opacity: 0.75;
+  transition: opacity 0.18s ease;
+}
+.ceo-card:hover { transform: translateY(-3px); }
+.ceo-card:hover::before { opacity: 1; }
+
+.ceo-card-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  /* The one solid colour on the card body: a hard outline, no gradient. */
+  border: 2px solid var(--brand);
+  border-radius: 3px;
+  background: #000;
+  overflow: hidden;
+}
+.ceo-card-art .ceo-art { width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; }
+
+.ceo-card-out {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 1px 5px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #000;
+  background: var(--brand);
+  border-radius: 2px;
+}
+
+/* The name tag: the only gradient on the card. */
+.ceo-card-plate {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 7px;
+  padding: 6px 7px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--brand-grad);
+  min-width: 0;
+}
+
+.ceo-card-names { display: flex; flex-direction: column; min-width: 0; }
+.ceo-card-names b {
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.ceo-card-names em {
+  font-style: normal;
+  font-size: 9px;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ceo-card.is-out { opacity: 0.6; }
+
+/* --- the connector down to the company's token --------------------------- */
+
+.ceo-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 44px;
+}
+.ceo-drop-line {
+  flex: 1;
+  width: 3px;
+  background: linear-gradient(to bottom, transparent, var(--brand));
+}
+/* A triangle rather than a glyph, so it scales with the line and never picks up
+   a font's own spacing. */
+.ceo-drop-head {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--brand);
+}
+
+/* A square the same size as the card that points at it. Matching both
+   dimensions is what makes the pair read as one object with an arrow between
+   its halves, rather than a card with a caption stuck underneath. */
+.ceo-token {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 8px 6px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  border-radius: 3px;
+  background: #000;
+  box-shadow: 0 0 22px -12px var(--brand);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+.ceo-token:hover {
+  border-color: var(--brand);
+  box-shadow: 0 0 26px -8px var(--brand);
+  transform: translateY(-2px);
+}
+
+.ceo-token-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+}
+
+/* Deliberately quiet — it qualifies the stock name above it rather than
+   competing with it. */
+.ceo-token-elig {
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.ceo-token-alloc {
+  font-size: 11px;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+/* Only the count carries colour. The denominator is the same for all seven and
+   colouring it too would imply the ceiling differs between them. */
+.ceo-token-alloc i { font-style: normal; font-weight: 700; color: var(--brand); }
+
+/* Scoped to .hero deliberately. `.hero p` is (0,1,1) and a bare
+   `.ceo-grid-note` is (0,1,0), so the generic paragraph rule wins on
+   specificity no matter how far down the file this sits — which silently ate
+   the margins the first time. Two classes (0,2,0) beats it.
+
+   max-width is cleared too: the note is centred, and inheriting the 66ch
+   measure would centre the text inside a box that is itself off-centre. */
+.hero .ceo-grid-note {
+  max-width: none;
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--dim);
+  text-align: center;
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 900px) {
+  /* Below this seven columns puts the name tags under 90px and the tickers
+     start truncating. Four then three is the least-bad wrap. */
+  .ceo-grid { grid-template-columns: repeat(4, 1fr); row-gap: 20px; }
+}
+
+@media (max-width: 560px) {
+  .ceo-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-actions .cta { min-width: 0; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+}
+
+/* ---------------------------------------------------------------- stale note */
+
+.stale-note {
+  margin: 0 auto 16px;
+  padding: 9px 14px;
+  font-size: 12px;
+  color: var(--dim);
+  text-align: center;
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+
+/* ------------------------------------------------------------ contract pill */
+
+/* The Google ramp, looped so it can scroll without a visible restart. The one
+   animated gradient on the site: the CA button's edge and the mint button's
+   fill, on hover only. */
+:root {
+  --google: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4);
+}
+@keyframes google-shift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 300% 50%; }
+}
+
+/* As wide as the body text, never wider: the button belongs to the copy. */
+.ca-wrap { width: 100%; max-width: 66ch; margin: 2px 0 20px; }
+.ca-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+  text-align: left;
+  background: #141416;
+  border: 1px solid #2a2b30;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ca-btn.is-idle { cursor: default; }
+/* The glow: a gradient ring just outside the border, blurred, plus the ring
+   itself in the border. Both are in a pseudo-element so the button's own
+   dark fill and white text never change. */
+.ca-btn::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--google);
+  background-size: 300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.ca-btn::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: var(--google);
+  background-size: 300% 100%;
+  filter: blur(10px);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.ca-btn:not(.is-idle):hover { border-color: transparent; }
+.ca-btn:not(.is-idle):hover::before { opacity: 1; animation: google-shift 3s linear infinite; }
+.ca-btn:not(.is-idle):hover::after { opacity: 0.45; animation: google-shift 3s linear infinite; }
+.ca-label { color: var(--muted); font-weight: 600; }
+.ca-text { min-width: 0; word-break: break-all; }
+.ca-action {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  min-width: 46px;
+  text-align: right;
+}
+.ca-btn.is-copied .ca-action { color: #fff; }
+.countdown-row.is-idle b, .countdown-inline.is-idle { color: var(--dim); }
+@media (max-width: 560px) {
+  .ca-btn { flex-wrap: wrap; gap: 4px 8px; font-size: 12.5px; }
+  .ca-text { flex-basis: 100%; }
+}
+
+/* "xStocks" in the headline: the Google ramp as text, with a soft glow of the
+   same ramp behind it, both drifting. */
+.glow-word {
+  position: relative;
+  display: inline-block;
+  background: var(--google);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: google-shift 14s linear infinite;
+}
+.glow-word {
+  filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.28));
+}
+
+/* Mint buttons: white at rest; on hover the white takes the Google ramp and
+   the text fades to white. The seven-colour ring on .cta stays. */
+.cta, .mint-cta { transition: color 0.35s ease, background 0.35s ease, opacity 0.16s ease, transform 0.12s ease; }
+.cta:hover {
+  opacity: 1;
+  color: #fff;
+  background:
+    var(--google) padding-box,
+    var(--seven) border-box;
+  background-size: 300% 100%, auto;
+  animation: google-shift 3s linear infinite;
+}
+.cta-ghost:hover { animation: none; color: var(--text); }
+.mint-cta:hover:not(:disabled) {
+  opacity: 1;
+  color: #fff;
+  border-color: transparent;
+  background: var(--google);
+  background-size: 300% 100%;
+  animation: google-shift 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ca-btn::before, .ca-btn::after, .cta:hover, .mint-cta:hover:not(:disabled) { animation: none; }
+}
+
+/* Letter-by-letter roster colouring. The spans carry their own colour inline;
+   this only stops them being treated as separate words. */
+.seven-text { white-space: nowrap; }
+
+/* ===========================================================================
+ * Current pot allocation
+ * ======================================================================== */
+
+.pot { display: flex; flex-direction: column; }
+
+/* The clock is the largest thing in this section. A pot with no visible
+   deadline gives nobody a reason to act on it. */
+.pot-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 22px;
+  border-bottom: 1px solid var(--shell-line);
+}
+.pot-clock-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pot-clock .countdown-cell b { font-size: 52px; letter-spacing: -0.03em; }
+.pot-clock .countdown-cell i { font-size: 11px; }
+.pot-clock .countdown-sep { font-size: 40px; line-height: 1.25; }
+
+.pot-headline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 22px 0;
+  background: var(--shell-line);
+  border: 1px solid var(--shell-line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.pot-headline > div { padding: 14px 16px; background: var(--card); text-align: center; }
+.pot-headline dt {
+  margin: 0 0 5px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pot-headline dd { margin: 0; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pot-headline dd i { font-style: normal; font-size: 13px; color: var(--dim); font-weight: 500; }
+
+.pot-body { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+
+.pot-chart { flex: none; margin: 0 auto; }
+.pot-slice { transition: opacity 0.16s ease; }
+.pot-chart:hover .pot-slice { opacity: 0.4; }
+.pot-chart .pot-slice:hover { opacity: 1; }
+
+.pot-total { fill: #fff; font-size: 38px; font-weight: 700; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.pot-total-unit { fill: var(--muted); font-size: 12px; text-anchor: middle; letter-spacing: 0.1em; text-transform: uppercase; }
+.pot-total-sub { fill: var(--dim); font-size: 11px; text-anchor: middle; }
+
+.pot-table { flex: 1; min-width: 340px; }
+
+.pot-head, .pot-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 62px 96px 84px;
+  gap: 10px;
+  align-items: center;
+}
+.pot-head {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--shell-line);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pot-head > span:not(:first-child),
+.pot-row > span:not(:first-child) { text-align: right; }
+
+.pot-row {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--shell-line);
+  font-variant-numeric: tabular-nums;
+}
+.pot-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.pot-name b { font-size: 12.5px; }
+.pot-name em { font-style: normal; font-size: 11px; color: var(--dim); }
+.pot-holders { font-size: 12.5px; color: var(--brand); font-weight: 700; }
+.pot-pool { font-size: 12.5px; }
+.pot-pool i { font-style: normal; color: var(--dim); font-size: 11px; }
+.pot-per { font-size: 12.5px; color: var(--muted); }
+
+.pot-note { margin: 16px 0 0; font-size: 12px; color: var(--muted); }
+.pot-note b { color: var(--text); }
+
+.pot-recent { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--shell-line); }
+
+/* --- recent mints: the whole entry is ringed in the company's colour ------ */
+
+.recent { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+.recent li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--brand);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--brand) 7%, var(--card));
+}
+
+/* The portrait carries its own ring of the same colour, so the entry reads as
+   one object with a framed image inside it rather than two unrelated boxes. */
+.recent-art {
+  display: block;
+  flex: none;
+  line-height: 0;
+  border: 2px solid var(--brand);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.recent-art .ceo-art { display: block; }
+
+.recent-meta { display: flex; flex-direction: column; margin-right: auto; }
+.recent-meta b { font-size: 12.5px; }
+.recent-meta em { font-style: normal; font-size: 11px; color: var(--dim); }
+.recent-when { font-size: 11px; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------ full-width cta */
+
+.cta-block { display: block; width: 100%; margin-top: 26px; }
+
+/* ------------------------------------------------------ collection list */
+
+.mint-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--card-line); }
+.mint-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--card-line);
+}
+.mint-row-art {
+  width: 44px; height: 44px;
+  border: 1px solid var(--brand);
+  border-radius: 3px;
+  overflow: hidden;
+  background: #000;
+}
+.mint-row-art .ceo-art, .mint-row-art svg { display: block; width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; }
+.mint-row-name { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+/* The name in the company's colour: that is the whole colour scheme of a row. */
+.mint-row-name b { font-size: 14px; color: var(--brand); letter-spacing: -0.01em; }
+.mint-row-name em {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-style: normal; font-size: 11px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.mint-row-holder { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-variant-numeric: tabular-nums; }
+.mint-row-holder i { font-style: normal; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.mint-row-holder a { font-size: 12px; color: var(--text); text-decoration: none; font-family: 'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace; }
+.mint-row-holder a:hover { text-decoration: underline; }
+.mint-row-link {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--muted); text-decoration: none; white-space: nowrap;
+  padding: 6px 10px; border: 1px solid var(--card-line); border-radius: 3px;
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+.mint-row-link:hover { color: #fff; border-color: var(--brand); }
+
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.pager button {
+  padding: 7px 12px; font-family: inherit; font-size: 12px; font-weight: 700;
+  color: var(--text); background: var(--card); border: 1px solid var(--card-line); border-radius: 3px; cursor: pointer;
+}
+.pager button:hover:not(:disabled) { border-color: var(--text); }
+.pager button:disabled { color: var(--dim); cursor: not-allowed; }
+
+@media (max-width: 560px) {
+  .mint-row { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .mint-row-art { width: 40px; height: 40px; }
+  .mint-row-link { grid-column: 2 / -1; justify-self: start; }
+}
+
+/* ------------------------------------------------------- collection filters */
+
+.filter-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+.filter-chip:hover { color: var(--text); }
+.filter-chip.on { color: #fff; border-color: var(--brand, #fff); }
+.filter-chip i { font-style: normal; color: var(--dim); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- responsive */
+
+@media (max-width: 860px) {
+  .pot-body { flex-direction: column; }
+  .pot-table { min-width: 0; width: 100%; }
+  .pot-headline { grid-template-columns: 1fr; }
+  .pot-clock .countdown-cell b { font-size: 40px; }
+}
+
+@media (max-width: 560px) {
+  .pot-head, .pot-row { grid-template-columns: minmax(0, 1fr) 52px 76px; }
+  .pot-head > span:nth-child(4), .pot-row > span:nth-child(4) { display: none; }
+  .pot-clock .countdown-cell b { font-size: 32px; }
+}

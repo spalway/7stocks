@@ -1,0 +1,1277 @@
+{
+  "address": "3A1sabNyVq3vjnYp3zt6nzr89wNAUJQQBgjwTezr6r7w",
+  "metadata": {
+    "name": "ceos",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "CEOs.fun: seven classes of Metaplex Core NFT, each with a derived vault paid in xStocks"
+  },
+  "instructions": [
+    {
+      "name": "close_ceo",
+      "docs": [
+        "Admin: remove a fully-settled CEO from the engine and refund its rent."
+      ],
+      "discriminator": [
+        215,
+        64,
+        221,
+        143,
+        53,
+        49,
+        17,
+        165
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "engine",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  110,
+                  103,
+                  105,
+                  110,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "ceo",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "ceo.asset",
+                "account": "Ceo"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_engine",
+      "docs": [
+        "One-time setup for the allocation engine: the seven xStock mints, in",
+        "class order."
+      ],
+      "discriminator": [
+        253,
+        71,
+        163,
+        152,
+        77,
+        21,
+        254,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "engine",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  110,
+                  103,
+                  105,
+                  110,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "stocks",
+          "type": {
+            "array": [
+              "pubkey",
+              7
+            ]
+          }
+        },
+        {
+          "name": "min_interval",
+          "type": "i64"
+        },
+        {
+          "name": "dust_floor",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "One-time setup. Run after the Core collection has been created off-chain",
+        "with the `[\"config\"]` PDA as its update authority."
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "collection",
+          "type": "pubkey"
+        },
+        {
+          "name": "treasury",
+          "type": "pubkey"
+        },
+        {
+          "name": "price",
+          "type": "u64"
+        },
+        {
+          "name": "supply",
+          "type": {
+            "array": [
+              "u32",
+              7
+            ]
+          }
+        },
+        {
+          "name": "uri_base",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "mint_ceo",
+      "docs": [
+        "Mint one CEO. The class is rolled on-chain, weighted by remaining supply;",
+        "the minter does not choose."
+      ],
+      "discriminator": [
+        254,
+        121,
+        39,
+        55,
+        181,
+        190,
+        241,
+        152
+      ],
+      "accounts": [
+        {
+          "name": "minter",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "collection",
+          "writable": true
+        },
+        {
+          "name": "asset",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "slot_hashes",
+          "docs": [
+            "deserialised — the full sysvar is ~20KB and we only need the head."
+          ],
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        },
+        {
+          "name": "mpl_core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_ceo",
+      "docs": [
+        "Puts a minted CEO into the engine so rounds start counting it.",
+        "Permissionless; the class is read off the asset."
+      ],
+      "discriminator": [
+        87,
+        207,
+        159,
+        184,
+        201,
+        90,
+        85,
+        208
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "engine",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  110,
+                  103,
+                  105,
+                  110,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "asset",
+          "docs": [
+            "asset and matched against our collection."
+          ]
+        },
+        {
+          "name": "ceo",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "asset"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "run_round",
+      "docs": [
+        "Credit whatever stock has arrived in one class's holding account to every",
+        "registered NFT of that class. Permissionless, and O(1) in NFT count."
+      ],
+      "discriminator": [
+        82,
+        55,
+        203,
+        200,
+        140,
+        117,
+        4,
+        81
+      ],
+      "accounts": [
+        {
+          "name": "cranker",
+          "signer": true
+        },
+        {
+          "name": "engine",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  110,
+                  103,
+                  105,
+                  110,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "stock_mint"
+        },
+        {
+          "name": "holding",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "engine"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "stock_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "class",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "set_config",
+      "docs": [
+        "Admin-only. Any argument left as `None` is untouched."
+      ],
+      "discriminator": [
+        108,
+        158,
+        154,
+        175,
+        212,
+        98,
+        52,
+        66
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "treasury",
+          "type": {
+            "option": "pubkey"
+          }
+        },
+        {
+          "name": "price",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "supply",
+          "type": {
+            "option": {
+              "array": [
+                "u32",
+                7
+              ]
+            }
+          }
+        },
+        {
+          "name": "uri_base",
+          "type": {
+            "option": "string"
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_engine",
+      "docs": [
+        "Admin: change the round cadence or the dust floor."
+      ],
+      "discriminator": [
+        66,
+        87,
+        78,
+        112,
+        218,
+        132,
+        52,
+        45
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "engine",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  110,
+                  103,
+                  105,
+                  110,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "min_interval",
+          "type": {
+            "option": "i64"
+          }
+        },
+        {
+          "name": "dust_floor",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "settle",
+      "docs": [
+        "Deliver one NFT's owed balance into its vault. Permissionless."
+      ],
+      "discriminator": [
+        175,
+        42,
+        185,
+        87,
+        144,
+        131,
+        102,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "cranker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "engine",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  110,
+                  103,
+                  105,
+                  110,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "ceo",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  101,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "ceo.asset",
+                "account": "Ceo"
+              }
+            ]
+          }
+        },
+        {
+          "name": "stock_mint"
+        },
+        {
+          "name": "holding",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "engine"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "stock_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "vault"
+        },
+        {
+          "name": "vault_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "stock_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Ceo",
+      "discriminator": [
+        27,
+        184,
+        74,
+        78,
+        122,
+        123,
+        235,
+        153
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Engine",
+      "discriminator": [
+        246,
+        94,
+        41,
+        147,
+        231,
+        121,
+        110,
+        19
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "CeoMinted",
+      "discriminator": [
+        142,
+        32,
+        224,
+        66,
+        73,
+        11,
+        132,
+        119
+      ]
+    },
+    {
+      "name": "CeoRegistered",
+      "discriminator": [
+        148,
+        153,
+        81,
+        128,
+        1,
+        241,
+        181,
+        182
+      ]
+    },
+    {
+      "name": "RoundRun",
+      "discriminator": [
+        197,
+        106,
+        178,
+        221,
+        121,
+        51,
+        42,
+        40
+      ]
+    },
+    {
+      "name": "Settled",
+      "discriminator": [
+        232,
+        210,
+        40,
+        17,
+        142,
+        124,
+        145,
+        238
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidClass",
+      "msg": "Class must be 0..6"
+    },
+    {
+      "code": 6001,
+      "name": "SoldOut",
+      "msg": "Every class is sold out"
+    },
+    {
+      "code": 6002,
+      "name": "UriBaseTooLong",
+      "msg": "Metadata uri base is too long"
+    },
+    {
+      "code": 6003,
+      "name": "RoundTooSoon",
+      "msg": "Not enough time has passed since this class's last round"
+    },
+    {
+      "code": 6004,
+      "name": "NoHolders",
+      "msg": "No registered NFTs in this class to allocate to"
+    },
+    {
+      "code": 6005,
+      "name": "NothingToDistribute",
+      "msg": "Nothing new in the holding account to distribute"
+    },
+    {
+      "code": 6006,
+      "name": "NothingToSettle",
+      "msg": "This NFT is owed nothing"
+    },
+    {
+      "code": 6007,
+      "name": "WrongStock",
+      "msg": "That mint is not this class's stock"
+    },
+    {
+      "code": 6008,
+      "name": "NotACeo",
+      "msg": "That asset is not a CEO in our collection"
+    },
+    {
+      "code": 6009,
+      "name": "UnknownClass",
+      "msg": "Could not read the class from the asset name"
+    },
+    {
+      "code": 6010,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6011,
+      "name": "NotSettled",
+      "msg": "Settle this NFT before closing it"
+    },
+    {
+      "code": 6012,
+      "name": "NoSlotHash",
+      "msg": "SlotHashes sysvar is empty"
+    }
+  ],
+  "types": [
+    {
+      "name": "Ceo",
+      "docs": [
+        "Per-NFT drop state, PDA at `[\"ceo\", asset]`.",
+        "",
+        "One stamp, not seven: an NFT only ever accrues on its own class's slot, so",
+        "carrying stamps for the other six would be 96 bytes of rent for nothing."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "asset",
+            "type": "pubkey"
+          },
+          {
+            "name": "class",
+            "type": "u8"
+          },
+          {
+            "name": "stamp",
+            "docs": [
+              "Where this NFT last stood against its class's accumulator."
+            ],
+            "type": "u128"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CeoMinted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "asset",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "class",
+            "type": "u8"
+          },
+          {
+            "name": "serial",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CeoRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "asset",
+            "type": "pubkey"
+          },
+          {
+            "name": "class",
+            "type": "u8"
+          },
+          {
+            "name": "class_count",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "docs": [
+        "Single global account, PDA at `[\"config\"]`.",
+        "",
+        "It doubles as the update authority of the Core collection: the collection is",
+        "created off-chain with this PDA as its authority, so `mint_ceo` can sign the",
+        "Core CPI with the config seeds and nothing else can mint into the collection."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Admin allowed to call `set_config`."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "collection",
+            "docs": [
+              "The Metaplex Core collection every CEO is minted into."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "Destination for mint proceeds."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "price",
+            "docs": [
+              "One price. There is no tier to choose, so there is no price to compare."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "supply",
+            "docs": [
+              "Hard supply cap per class. Identical across all seven by design; kept as",
+              "an array so a class can be capped independently if that ever changes."
+            ],
+            "type": {
+              "array": [
+                "u32",
+                7
+              ]
+            }
+          },
+          {
+            "name": "minted",
+            "docs": [
+              "Minted so far per class."
+            ],
+            "type": {
+              "array": [
+                "u32",
+                7
+              ]
+            }
+          },
+          {
+            "name": "uri_base",
+            "docs": [
+              "Metadata host, no trailing slash. Asset uri is `{uri_base}/{slug}/{asset}.json`."
+            ],
+            "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Engine",
+      "docs": [
+        "Global drop state, PDA at `[\"engine\"]`.",
+        "",
+        "Every class has its own slot: its own stock, its own accumulator, its own",
+        "count of registered NFTs. A round credits ONE class and is O(1) in NFT count",
+        "— it writes one number, not N transfers. A full cycle is seven rounds.",
+        "",
+        "Every NFT has weight 1, so \"per weight\" is \"per NFT\". What a CEO is owed is",
+        "the distance between its class's accumulator and its own stamp.",
+        "",
+        "The engine PDA owns the seven holding token accounts the bot swaps into, so",
+        "`run_round` only ever credits tokens it can see in its own balance."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "stocks",
+            "docs": [
+              "The xStock mint for each class."
+            ],
+            "type": {
+              "array": [
+                "pubkey",
+                7
+              ]
+            }
+          },
+          {
+            "name": "acc_per_nft",
+            "docs": [
+              "Cumulative units of each class's stock owed per NFT, x ACC_SCALE."
+            ],
+            "type": {
+              "array": [
+                "u128",
+                7
+              ]
+            }
+          },
+          {
+            "name": "outstanding",
+            "docs": [
+              "Credited to CEOs but not yet settled out of the holding account."
+            ],
+            "type": {
+              "array": [
+                "u64",
+                7
+              ]
+            }
+          },
+          {
+            "name": "class_count",
+            "docs": [
+              "Registered NFTs in each class. This is the divisor for a round."
+            ],
+            "type": {
+              "array": [
+                "u32",
+                7
+              ]
+            }
+          },
+          {
+            "name": "last_round",
+            "docs": [
+              "When each class last ran. Per class, because a cycle runs all seven",
+              "back to back and a single timestamp would block the second one."
+            ],
+            "type": {
+              "array": [
+                "i64",
+                7
+              ]
+            }
+          },
+          {
+            "name": "min_interval",
+            "docs": [
+              "Seconds a class's round must wait behind its previous one."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "dust_floor",
+            "docs": [
+              "Smallest token delta worth crediting. Guards against dust rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundRun",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "class",
+            "type": "u8"
+          },
+          {
+            "name": "stock",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "class_count",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Settled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "asset",
+            "docs": [
+              "The NFT that was settled."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "docs": [
+              "Its class's stock, delivered to the vault."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

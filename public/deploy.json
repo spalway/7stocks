@@ -1,0 +1,16 @@
+{
+  "collection": "BsNhgFLvMM1fA9gGvnCaLquNRnDuokiGo2qPLg3hYjw2",
+  "treasury": "F7ivZZGjZKC8vhzL2KgxtScPqwrKkXTYHFUQ2xq6iL1i",
+  "stocks": {
+    "amzn": "4UXYASZ1uJhpiSUyCX2Ee62ZGoMWHw1tCWjtGPQ2GD1F",
+    "googl": "E5myGj5F83gsM4jtBct5EELKGNMfQXaqcL1UBAKs7Zgh",
+    "meta": "TWrzcYbPHKkzQ4YiNahp7JALXJY6BnAJ1ZJGxuVYBoG",
+    "nvda": "Gieatbahg6qwBpTuAvXHbCi7hZWqdPjCEycJSs5Um6X7",
+    "msft": "jqtU9D2tFTzE5EaSBtZc5goXVGbvg1ixkZY1MYKBev8",
+    "aapl": "Ax9V5bWnchXesQ8N6tQX17mXbfARRCoFDXs7NZgGE5ye",
+    "tsla": "21PEJrQyEZGH2PCsE6oP6PSQBSaqPW9Fpwv3K41pH7Yf"
+  },
+  "stockDecimals": 8,
+  "tokenProgram": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+  "potWallet": "42ML3aGmUMnUGBPyKxz63WTTtTZ7Vm66nywB6jX5cdxF"
+}
