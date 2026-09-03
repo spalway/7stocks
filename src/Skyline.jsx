@@ -88,24 +88,53 @@ export default function Skyline() {
   const [H, setH] = useState(1000);
   const frame = useRef(null);
 
-  // Scroll progress, 0 at the top of any page and 1 about one viewport down.
-  // Drives the parallax: the seven grow taller and the grey filler sinks out of
-  // the frame, so scrolling reads as the city rising around the content.
-  // Throttled to one state write per animation frame.
-  const [p, setP] = useState(0);
+  // Parallax, driven outside React. Scrolling sets a target; a requestAnimationFrame
+  // loop eases the current value toward it and writes SVG transforms straight
+  // onto the groups. No state, no re-render, no SVG rebuild per frame — that is
+  // what keeps it at the display's refresh rate. The easing also smooths the
+  // stepped input a mouse wheel produces.
+  //
+  // Towers are drawn at their fully grown height and pushed DOWN by the amount
+  // they have not yet grown, so at the top of the page they stand at their
+  // resting height with the extra floors below the frame; scrolling lifts them.
+  // Filler sinks the other way, nearer bands faster.
+  const towerRefs = useRef([]);
+  const bandRefs = useRef([]);
+  const growRef = useRef([]);   // per-tower lift in px at full progress
+  const sinkRef = useRef([]);   // per-band drop in px at full progress
   useEffect(() => {
+    let target = 0;
+    let current = 0;
     let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const span = Math.max(400, window.innerHeight * 0.9);
-        setP(Math.max(0, Math.min(1, window.scrollY / span)));
+    const apply = () => {
+      towerRefs.current.forEach((g, i) => {
+        if (g) g.setAttribute('transform', `translate(0, ${((1 - current) * (growRef.current[i] ?? 0)).toFixed(2)})`);
       });
+      bandRefs.current.forEach((g, i) => {
+        if (g) g.setAttribute('transform', `translate(0, ${(current * (sinkRef.current[i] ?? 0)).toFixed(2)})`);
+      });
+    };
+    const tick = () => {
+      const d = target - current;
+      if (Math.abs(d) < 0.0005) { current = target; apply(); raf = 0; return; }
+      current += d * 0.09;
+      apply();
+      raf = requestAnimationFrame(tick);
+    };
+    const onScroll = () => {
+      // Slow: the full effect takes about two screens of scrolling.
+      const span = Math.max(600, window.innerHeight * 2);
+      target = Math.max(0, Math.min(1, window.scrollY / span));
+      if (!raf) raf = requestAnimationFrame(tick);
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Track BOTH dimensions of the container, so the viewBox is exactly the box
@@ -152,6 +181,7 @@ export default function Skyline() {
   // is what puts vertical air between neighbouring crowns. The previous set
   // stacked the four left-hand crowns within a few units of each other.
   const heights = [126, 108, 96, 84, 116, 120, 88];
+  const GROW = 0.75;
 
   // Spread EVENLY through each flank rather than packed against the column.
   //
@@ -176,10 +206,11 @@ export default function Skyline() {
       ? centre - towerW / 2
       : (w - flankW) + centre - towerW / 2;
     const x = Math.max(0, Math.min(w - towerW, raw));
-    // Grows with scroll, up to 45%. The crowns are allowed to climb out of
-    // the top of the frame: a tower whose top you can no longer see reads as
-    // taller than one whose growth was capped to fit.
-    const h = unit * Math.round(heights[i] * (1 + 0.45 * p));
+    // Drawn fully grown (75% taller than resting) and lifted into view by the
+    // scroll loop above; the crowns are allowed to climb out of the frame.
+    const rest = unit * heights[i];
+    const h = unit * Math.round(heights[i] * (1 + GROW));
+    growRef.current[i] = h - rest;
     return { ...c, x: Math.round(x / unit) * unit, y: baseY - h, w: towerW, h };
   });
 
@@ -217,7 +248,7 @@ export default function Skyline() {
         {/* Filler sinks with scroll, nearer bands faster, until it is out of
             the frame and only the seven are left standing. */}
         {[far, mid, near].map((band, bi) => (
-          <g key={bi} transform={`translate(0, ${Math.round(p * H * [0.45, 0.6, 0.8][bi])})`}>
+          <g key={bi} ref={(el) => { bandRefs.current[bi] = el; sinkRef.current[bi] = H * [0.35, 0.5, 0.7][bi]; }}>
             {band.map((b, i) => (
               <g key={i}>
                 <rect x={b.x} y={b.y} width={b.w} height={b.h} fill={fillerFill[bi]} />
@@ -236,7 +267,13 @@ export default function Skyline() {
 
         {/* The seven. Drawn last so they sit in front of every filler band. */}
         {towers.map((t, i) => (
-          <g key={t.ticker} className="tower" style={{ '--glow': t.hue, '--i': i }}>
+          <g
+            key={t.ticker}
+            className="tower"
+            style={{ '--glow': t.hue, '--i': i }}
+            ref={(el) => { towerRefs.current[i] = el; }}
+            transform={`translate(0, ${growRef.current[i]})`}
+          >
             <rect
               className="tower-glow"
               x={t.x - unit}
