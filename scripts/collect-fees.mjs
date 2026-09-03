@@ -17,7 +17,7 @@ import { resolve } from 'node:path';
 import {
   Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, Transaction, sendAndConfirmTransaction,
 } from '@solana/web3.js';
-import pumpSdk from '@pump-fun/pump-sdk';
+import * as pumpSdk from '@pump-fun/pump-sdk';
 import { config, potWallet, root, parseSecret } from './shared.mjs';
 
 const { OnlinePumpSdk, PumpSdk, feeSharingConfigPda, canonicalPumpPoolPda } = pumpSdk;

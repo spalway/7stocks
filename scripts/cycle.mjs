@@ -136,7 +136,7 @@ async function distributeFees() {
   const pump = config.pump ?? {};
   if (!IS_MAINNET || !pump.mint || pump.mode !== 'share') return;
   try {
-    const { OnlinePumpSdk, feeSharingConfigPda } = (await import('@pump-fun/pump-sdk')).default;
+    const { OnlinePumpSdk, feeSharingConfigPda } = await import('@pump-fun/pump-sdk');
     const online = new OnlinePumpSdk(conn);
     const mint = new PublicKey(pump.mint);
     if (!(await conn.getAccountInfo(feeSharingConfigPda(mint)))) {
