@@ -37,3 +37,6 @@ anchor/ceos-keypair.json
 # Browser "save page" dumps that landed next to the reference art.
 public/CEOPIXELS/*.html
 public/CEOPIXELS/*_files/
+
+# pump.fun deployer key, only needed once for the fee-share setup.
+creator-wallet.json
