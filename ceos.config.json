@@ -26,7 +26,7 @@
     "minSweepSol": 0.05,
     "holderBps": 9000,
     "protocolWallet": "F7ivZZGjZKC8vhzL2KgxtScPqwrKkXTYHFUQ2xq6iL1i",
-    "potWallet": null
+    "potWallet": "3TGNMJn1FhZF8NSvour5A8ysHBReB68AUV8evB53WcwR"
   },
   "_notes": {
     "uriBase": "Must be a public origin. Wallets and explorers fetch token metadata from their own servers, so localhost resolves to nothing for everyone but you.",

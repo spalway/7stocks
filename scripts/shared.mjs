@@ -91,10 +91,17 @@ export function potWallet() {
     if (!kp) throw new Error('POT_SECRET is not set yet: paste the pot private key (Phantom base58 export or JSON byte array) into the cycle service variables');
     return kp;
   }
-  const path = resolve(root, 'pot-wallet.json');
-  if (existsSync(path)) return fromSecret(readFileSync(path, 'utf8'));
+  // Locally, whichever key file IS the configured pot. When the pot is the
+  // pump.fun creator, that is creator-wallet.json and no separate file exists.
+  const want = IS_MAINNET ? config.pump?.potWallet : null;
+  for (const name of ['pot-wallet.json', 'creator-wallet.json']) {
+    const path = resolve(root, name);
+    if (!existsSync(path)) continue;
+    const kp = parseSecret(readFileSync(path, 'utf8'));
+    if (kp && (!want || kp.publicKey.toBase58() === want)) return kp;
+  }
   if (!IS_MAINNET) return wallet();
-  throw new Error('no pot key: set POT_SECRET or provide pot-wallet.json');
+  throw new Error(`no pot key for ${want ?? 'the pot'}: set POT_SECRET or provide its key file`);
 }
 
 /// The endpoint every script talks to. Exported because umi builds its own
