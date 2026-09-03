@@ -22,7 +22,9 @@ async function rest(path, { method = 'GET', body, prefer } = {}) {
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`supabase ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  return res.status === 204 ? null : res.json();
+  // A minimal-return insert answers 201 with an empty body; only parse what is there.
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 /// Every CEO currently on-chain, as the mirror should hold it. Upserts the
