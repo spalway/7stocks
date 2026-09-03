@@ -357,7 +357,11 @@ async function cycle() {
   const total = eng.classCount.reduce((a, b) => a + b, 0);
   log(`  holders   ${total}  [${eng.classCount.join(' ')}]`);
 
-  if (!SETTLE_ONLY && total > 0) {
+  // Until the token exists there are no fees, so any SOL in the pot is gas or
+  // launch money, not something to distribute. Register and settle still run.
+  if (!config.pump?.mint && !SIMULATE) {
+    log('  allocate  skipped: no token yet (pump.mint is null)');
+  } else if (!SETTLE_ONLY && total > 0) {
     const balance = await conn.getBalance(pot.publicKey);
     const spend = balance - Math.floor(KEEP_SOL * LAMPORTS_PER_SOL);
     log(`  pot       ${sol(balance)} SOL, spendable ${sol(Math.max(0, spend))}`);
