@@ -66,7 +66,10 @@ async function preflight(transaction) {
   if (err) {
     const logs = res.result.value.logs ?? [];
     const reason = logs.filter((l) => l.includes('Error Message:')).pop() ?? logs.slice(-1)[0] ?? JSON.stringify(err);
-    throw new Error(`would fail on-chain: ${reason}`);
+    const why = /AccountNotFound/.test(reason)
+      ? 'the paying wallet has no SOL on this cluster'
+      : reason;
+    throw new Error(`would fail on-chain: ${why}`);
   }
 }
 
@@ -239,6 +242,13 @@ export function useChain() {
     setBusy('mint');
     setError(null);
     try {
+      // Say the real reason before the simulator says "AccountNotFound": a
+      // wallet with no SOL on this cluster does not exist as an account yet.
+      const need = config.price + 0.02 * 1e9;
+      const have = await connection.getBalance(wallet);
+      if (have < need) {
+        throw new Error(`This wallet has ${(have / 1e9).toFixed(3)} SOL on ${IS_MAINNET ? 'mainnet' : 'devnet'}; minting needs about ${(need / 1e9).toFixed(2)} SOL (price plus fees).`);
+      }
       // Core requires the asset address to sign its own creation, so each mint
       // needs a throwaway keypair. Discarded immediately — the NFT belongs to
       // the minter, the account to the Core program.
