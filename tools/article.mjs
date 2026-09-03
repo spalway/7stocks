@@ -46,7 +46,7 @@ function windows(b) {
 // Bases sit well below the frame so only the upper storeys show: the towers'
 // crowns come up to about a third of the height, the filler to a sixth.
 const fillerBase = H + unit * 30;
-const towerBase = H + unit * 70;
+const towerBase = H + unit * 52;
 const far = fillerBand({ seed: 0xA11CE, count: Math.ceil(W / (unit * 4)) + 4, depth: 0, baseY: fillerBase - unit * 14 });
 const mid = fillerBand({ seed: 0xB0B, count: Math.ceil(W / (unit * 5)) + 4, depth: 1, baseY: fillerBase - unit * 6 });
 const near = fillerBand({ seed: 0xC0DE, count: Math.ceil(W / (unit * 6)) + 4, depth: 2, baseY: fillerBase });
@@ -95,12 +95,14 @@ function blit(src, x, y, size) {
   }
 }
 
+// The grey city at half strength so the seven and the headline own the frame.
+const FILLER_OPACITY = 0.5;
 [far, mid, near].forEach((band, bi) => {
   for (const b of band) {
-    rect(b.x, b.y, b.w, b.h, fillerFill[bi]);
-    rect(b.x, b.y, b.w, unit * 2, fillerLine[bi]);
-    for (const w of windows(b)) rect(w.x, w.y, unit, unit, winFill[bi]);
-    rect(b.x + unit * 1.5, b.y + unit * 5, b.w - unit * 3, b.w - unit * 3, fillerPlate[bi]);
+    rect(b.x, b.y, b.w, b.h, fillerFill[bi], FILLER_OPACITY);
+    rect(b.x, b.y, b.w, unit * 2, fillerLine[bi], FILLER_OPACITY);
+    for (const w of windows(b)) rect(w.x, w.y, unit, unit, winFill[bi], FILLER_OPACITY);
+    rect(b.x + unit * 1.5, b.y + unit * 5, b.w - unit * 3, b.w - unit * 3, fillerPlate[bi], FILLER_OPACITY);
   }
 });
 towers.forEach((t, i) => {
@@ -114,33 +116,50 @@ towers.forEach((t, i) => {
   blit(logo, t.x + unit * 1.5, t.y + unit * 5, p);
 });
 
-// ---- headline, rendered by resvg with system fonts, composited over the city
+// ---- headline. The site sets Inter; the closest face installed here is
+// Segoe UI, which is also what the site falls back to on Windows. Rendered by
+// resvg from system fonts, composited over the city.
+const FONT = 'Segoe UI, Inter, Arial, sans-serif';
+const BIG = 84; const SMALL = 30;
+const GOOGLE = '<linearGradient id="g" x1="0" y1="0" x2="1" y2="0">'
+  + '<stop offset="0" stop-color="#4285F4"/><stop offset="0.33" stop-color="#EA4335"/>'
+  + '<stop offset="0.66" stop-color="#FBBC05"/><stop offset="1" stop-color="#34A853"/></linearGradient>';
+
+/// Width of a string at the headline size, measured off a render.
+function measure(str, weight) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * S}" height="200" viewBox="0 0 ${W} 100">
+    <text x="0" y="80" font-family="${FONT}" font-weight="${weight}" font-size="${BIG}" letter-spacing="-1" fill="#fff">${str}</text></svg>`;
+  const img = PNG.sync.read(new Resvg(svg, { font: { loadSystemFonts: true } }).render().asPng());
+  let x1 = 0;
+  for (let y = 0; y < img.height; y += 1) for (let x = 0; x < img.width; x += 1) {
+    if (img.data[(y * img.width + x) * 4 + 3] > 128 && x > x1) x1 = x;
+  }
+  return x1 / S;
+}
+const wEarn = measure('Earn', 600);
+const wLine = measure('Earn Yield', 600);
+const lineX = W / 2 - wLine / 2;
+const y1 = 236; const y2 = 236 + BIG * 1.02; const y3 = y2 + 58;
+
 const textSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * S}" height="${H * S}" viewBox="0 0 ${W} ${H}">
-  <g font-family="Inter, Segoe UI, Arial, sans-serif" font-weight="800" text-anchor="middle">
-    <text x="${W / 2}" y="300" font-size="118" letter-spacing="-3">
-      <tspan fill="#6b7078">Earn</tspan><tspan fill="#ffffff"> Own Yield</tspan>
-    </text>
-    <text x="${W / 2}" y="372" font-size="40" font-weight="600" fill="#8b8f96" letter-spacing="2">ceos.fun</text>
+  <defs>${GOOGLE}</defs>
+  <g font-family="${FONT}" letter-spacing="-1">
+    <text x="${W / 2}" y="${y1}" text-anchor="middle" font-weight="600" font-size="${BIG}" fill="url(#g)">Own</text>
+    <text x="${lineX}" y="${y2}" font-weight="600" font-size="${BIG}" fill="#ffffff">Earn Yield</text>
+    <text x="${W / 2}" y="${y3}" text-anchor="middle" font-weight="500" font-size="${SMALL}" fill="#8b8f96" letter-spacing="1.5">ceos.fun</text>
   </g>
 </svg>`;
 const text = PNG.sync.read(new Resvg(textSvg, { font: { loadSystemFonts: true } }).render().asPng());
 
-// The cross-out: a thick red bar through "Earn". Its extent is measured off
-// the rendered grey pixels rather than guessed from font metrics.
+// The cross-out: a red bar through "Earn" only, at the word's measured width.
 {
-  let x0 = Infinity; let x1 = -1; let y0 = Infinity; let y1 = -1;
-  for (let y = 0; y < text.height; y += 1) for (let x = 0; x < text.width; x += 1) {
-    const i = (y * text.width + x) * 4;
-    if (text.data[i + 3] > 128 && Math.abs(text.data[i] - 0x6b) < 12 && Math.abs(text.data[i + 1] - 0x70) < 12) {
-      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
-    }
-  }
-  const h = y1 - y0;
-  const bar = { x: x0 - h * 0.08, y: y0 + h * 0.5, w: (x1 - x0) + h * 0.16, h: h * 0.11 };
+  const bar = { x: lineX - 4, y: y2 - BIG * 0.36, w: wEarn + 8, h: BIG * 0.09 };
   const c = hexRgb('#E3262B');
-  for (let y = Math.round(bar.y); y < Math.round(bar.y + bar.h); y += 1) for (let x = Math.round(bar.x); x < Math.round(bar.x + bar.w); x += 1) {
-    const i = (y * text.width + x) * 4;
-    text.data[i] = c[0]; text.data[i + 1] = c[1]; text.data[i + 2] = c[2]; text.data[i + 3] = 255;
+  for (let y = Math.round(bar.y * S); y < Math.round((bar.y + bar.h) * S); y += 1) {
+    for (let x = Math.round(bar.x * S); x < Math.round((bar.x + bar.w) * S); x += 1) {
+      const i = (y * text.width + x) * 4;
+      text.data[i] = c[0]; text.data[i + 1] = c[1]; text.data[i + 2] = c[2]; text.data[i + 3] = 255;
+    }
   }
 }
 for (let i = 0; i < png.data.length; i += 4) {
