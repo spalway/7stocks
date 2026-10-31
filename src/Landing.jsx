@@ -39,56 +39,48 @@ export default function Landing({ now }) {
 
   return (
     <>
+      {/* Hero: splash line on top, then the slideshow beside a stat strip
+          with the two actions. The explainer copy moves below the seven, where
+          it is read after the picture has made the point. */}
       <section className="hero">
         <div className="shell hero-shell">
-          <h1>
+          <span className="eyebrow">Seven CEOs · one mint · paid in xStocks</span>
+          <h1 className="splash">
             Mint &amp; Hold NFT CEOs
             <br />
             <span className="glow-word">Get Paid in xStocks</span>
           </h1>
-
-          {/* Copy on the left, the slideshow on the right. The show cycles all
-              seven classes and, for each, four colourways of the same face, so
-              the range of a mint is shown rather than described. */}
-          <div className="hero-body">
-          <div className="hero-copy">
           <p className="lede">
             Every NFT CEO earns a share of the creator fees our token generates.
             Distributed every {DROP_INTERVAL_MINUTES} minutes in that CEO&apos;s
             xStock, straight into the NFT&apos;s vault.
           </p>
 
-          <p>
-            Each cycle the fee pot is swapped from SOL and split evenly across
-            every NFT in the collection. Your share lands in the NFT&apos;s{' '}
-            <b>Metaplex vault</b> as the xStock of that CEO&apos;s company: AMZNx
-            for a Jassy, TSLAx for a Musk. The split is <b>per NFT, not per
-            wallet</b>. Holding one CEO or ten of the same does not change what
-            each is owed, but every NFT you mint is its own allocation, so the
-            way to earn more is to hold more CEOs. Nothing is staked or locked;
-            it accrues while it sits in your wallet.
-          </p>
+          <div className="hero-body">
+            <div className="hero-aside">
+              <CeoSlideshow />
+            </div>
 
-          <p>
-            There are <b>{ALLOCATIONS_PER_CEO} of each CEO</b> and{' '}
-            {TOTAL_SUPPLY} across the collection. No CEO is rarer than another
-            and none earns more from a cycle. Which one you mint decides the
-            stock you are paid in, not the amount. The first ten wallets to hold
-            all seven CEOs get something extra. We are not saying what.
-          </p>
-
+            <div className="hero-side">
+              <dl className="stat-strip">
+                <div><dt>Minted</dt><dd>{totalMinted} <i>/ {TOTAL_SUPPLY}</i></dd></div>
+                <div><dt>Per CEO</dt><dd>{ALLOCATIONS_PER_CEO}</dd></div>
+                <div><dt>Next cycle</dt><dd><Countdown seconds={remaining} inline /></dd></div>
+              </dl>
+              <Link to="/mint" className="cta cta-block hero-mint-cta">
+                Mint for {MINT_PRICE_SOL} SOL →
+              </Link>
+              <ContractPill />
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="hero-aside">
-            <CeoSlideshow />
-          </div>
-
-          {/* Second row: the contract button under the copy and the mint
-              button under the slideshow, on one line. */}
-          <ContractPill />
-          <Link to="/mint" className="cta cta-block hero-mint-cta">
-            Mint for {MINT_PRICE_SOL} SOL →
-          </Link>
+      <section>
+        <div className="shell">
+          <div className="label">
+            <span>The seven</span>
+            <span>{totalMinted} of {TOTAL_SUPPLY} minted</span>
           </div>
 
           {/* All seven at once rather than one at a time. A carousel shows one
@@ -132,6 +124,31 @@ export default function Landing({ now }) {
           </p>
         </div>
       </section>
+
+      <Shell title="How it pays" aside={`Every ${DROP_INTERVAL_MINUTES} minutes`}>
+        <div className="how">
+          <div className="how-step">
+            <b>01</b>
+            <h3>Fees land in the pot</h3>
+            <p>Each cycle the creator-fee pot is swapped from SOL and split evenly across every NFT in the collection.</p>
+          </div>
+          <div className="how-step">
+            <b>02</b>
+            <h3>Paid in the CEO&apos;s stock</h3>
+            <p>Your share lands in the NFT&apos;s Metaplex vault as the xStock of that company: AMZNx for a Jassy, TSLAx for a Musk.</p>
+          </div>
+          <div className="how-step">
+            <b>03</b>
+            <h3>Per NFT, not per wallet</h3>
+            <p>One CEO or ten of the same, each NFT is its own allocation. Nothing is staked or locked; it accrues while it sits in your wallet.</p>
+          </div>
+          <div className="how-step">
+            <b>04</b>
+            <h3>{ALLOCATIONS_PER_CEO} of each, {TOTAL_SUPPLY} total</h3>
+            <p>No CEO is rarer or earns more. Which one you mint decides the stock you are paid in, not the amount. First ten wallets to hold all seven get something extra.</p>
+          </div>
+        </div>
+      </Shell>
 
       {/* --------------------------------------------- current pot allocation */}
       <Shell title="Current pot allocation" aside="This cycle">
